@@ -839,29 +839,24 @@ export const feirasPage = `<!DOCTYPE html>
             
             // Criar janela de impressão
             const printWindow = window.open('', '', 'width=900,height=650');
-            printWindow.document.write(\`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Imprimir Feira - \${location}</title>
-                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-                    <style>
-                        body { margin: 0; padding: 20px; }
-                        @media print {
-                            body { padding: 0; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    \${printContent}
-                    <script>
-                        window.onload = function() { 
-                            window.print(); 
-                        }
-                    </script>
-                </body>
-                </html>
-            \`);
+            const htmlContent = '<!DOCTYPE html>' +
+                '<html>' +
+                '<head>' +
+                '<title>Imprimir Feira - ' + location + '</title>' +
+                '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">' +
+                '<style>' +
+                'body { margin: 0; padding: 20px; }' +
+                '@media print { body { padding: 0; } }' +
+                '</style>' +
+                '</head>' +
+                '<body>' +
+                printContent +
+                '<script>' +
+                'window.onload = function() { window.print(); }' +
+                '</script>' +
+                '</body>' +
+                '</html>';
+            printWindow.document.write(htmlContent);
             printWindow.document.close();
         }
 

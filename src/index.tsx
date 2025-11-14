@@ -6,6 +6,8 @@ import { Bindings } from './types';
 import authRoutes from './routes/auth';
 import dashboardRoutes from './routes/dashboard';
 import suppliersRoutes from './routes/suppliers';
+import { dashboardPage } from './pages/dashboard-page';
+import { fornecedoresPage } from './pages/fornecedores-page';
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -296,6 +298,16 @@ app.use('*', async (c, next) => {
 // Healthcheck
 app.get('/api/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Rota do Dashboard
+app.get('/dashboard', (c) => {
+  return c.html(dashboardPage);
+});
+
+// Rota de Fornecedores
+app.get('/fornecedores', (c) => {
+  return c.html(fornecedoresPage);
 });
 
 export default app;

@@ -54,12 +54,18 @@
    - Preview em tempo real dos valores
    - Marcação de conferência dupla
 
-## Funcionalidades Pendentes 🚧
-1. **Módulo de Feiras**
-   - Registro de itens levados
-   - Cálculo automático do valor total
+5. **Módulo de Feiras** ✅ NOVO
+   - CRUD completo de feiras
+   - **Adicionar múltiplos itens** (quantidade × valor unitário)
+   - **Cálculo automático do valor total da feira**
+   - Filtros por mês e ano
+   - **Cards com estatísticas** (total de feiras, faturamento, média, melhor feira)
+   - **Modal de visualização detalhada** com impressão
+   - **Datas no padrão brasileiro** com fuso horário de Fortaleza
+   - Controle de permissões por usuário
 
-3. **Módulo de Recibos**
+## Funcionalidades Pendentes 🚧
+1. **Módulo de Recibos**
    - Geração de PDF personalizado
    - Logo e formatação padronizada
 
@@ -126,7 +132,7 @@ pm2 logs armazem --nostream
 
 ## Próximos Passos Recomendados
 1. ~~Implementar módulo de Fichas Semanais com extração automática de valores~~ ✅
-2. Criar módulo de Feiras com cálculo automático
+2. ~~Criar módulo de Feiras com cálculo automático~~ ✅
 3. Implementar geração de recibos em PDF
 4. Adicionar gráficos no módulo financeiro usando Chart.js
 5. Completar módulo de gestão de usuários
@@ -137,4 +143,4 @@ pm2 logs armazem --nostream
 - **Plataforma**: Cloudflare Pages (preparado)
 - **Status**: ✅ Ativo (desenvolvimento)
 - **Stack**: Hono + TypeScript + TailwindCSS + Cloudflare D1
-- **Última Atualização**: 14/11/2024 - Modal de visualização com impressão e ajuste de fuso horário
+- **Última Atualização**: 14/11/2024 - Módulo de Feiras implementado

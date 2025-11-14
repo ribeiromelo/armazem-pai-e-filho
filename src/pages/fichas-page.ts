@@ -9,9 +9,53 @@ export const fichasPage = `<!DOCTYPE html>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media print {
+            .no-print { display: none !important; }
         }
     </style>
 </head>
@@ -297,6 +341,32 @@ export const fichasPage = `<!DOCTYPE html>
         </div>
     </div>
 
+    <!-- Modal de Visualização -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content p-8">
+            <div class="flex justify-between items-start mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Visualizar Ficha</h2>
+                <button onclick="closeViewModal()" class="text-gray-400 hover:text-gray-600 no-print">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div id="viewContent" class="space-y-4">
+                <!-- Conteúdo será inserido dinamicamente -->
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6 no-print">
+                <button onclick="printSheet()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
+                    <i class="fas fa-print mr-2"></i>
+                    Imprimir
+                </button>
+                <button onclick="closeViewModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Verificar autenticação
         const token = localStorage.getItem('token');
@@ -569,10 +639,20 @@ export const fichasPage = `<!DOCTYPE html>
                 return isChecked === checkedFilter;
             });
 
-            const html = filtered.map(sheet => \`
+            const html = filtered.map(sheet => {
+                // Formatar data no padrão brasileiro com horário de Fortaleza
+                const date = new Date(sheet.date + 'T00:00:00-03:00');
+                const formattedDate = date.toLocaleDateString('pt-BR', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    timeZone: 'America/Fortaleza'
+                });
+                
+                return \`
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">\${new Date(sheet.date).toLocaleDateString('pt-BR')}</div>
+                        <div class="text-sm text-gray-900">\${formattedDate}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">\${sheet.supplier_name}</div>
@@ -612,7 +692,8 @@ export const fichasPage = `<!DOCTYPE html>
                         \` : ''}
                     </td>
                 </tr>
-            \`).join('');
+            \`;
+            }).join('');
             
             document.getElementById('sheetsTable').innerHTML = html || \`
                 <tr>
@@ -643,32 +724,156 @@ export const fichasPage = `<!DOCTYPE html>
         function viewSheet(id) {
             const sheet = sheets.find(s => s.id === id);
             if (sheet) {
-                const stockInfo = sheet.stock_items && sheet.stock_items.length > 0
-                    ? sheet.stock_items.map(item => \`\${item.quantity}x \${item.item_name} @ R$\${item.unit_value} = R$\${item.total_value}\`).join('\\n')
-                    : 'Nenhum item';
+                // Formatar data no padrão brasileiro com horário de Fortaleza
+                const date = new Date(sheet.date + 'T00:00:00-03:00');
+                const formattedDate = date.toLocaleDateString('pt-BR', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    timeZone: 'America/Fortaleza'
+                });
                 
-                alert(\`
-Ficha #\${sheet.id}
-==================
-Data: \${new Date(sheet.date).toLocaleDateString('pt-BR')}
-Fornecedor: \${sheet.supplier_name}
-Produto: \${sheet.product_type}
-
-Estoque:
-\${stockInfo}
-Total do Estoque: R$ \${(sheet.stock_total || 0).toFixed(2).replace('.', ',')}
-
-Fiado: \${sheet.credit_text || 'N/A'}
-Total Fiado: R$ \${sheet.credit_total.toFixed(2).replace('.', ',')}
-Dinheiro: R$ \${sheet.envelope_money.toFixed(2).replace('.', ',')}
-Ajustes: R$ \${(sheet.observations_adjustment || 0).toFixed(2).replace('.', ',')}
-Total da Pasta: R$ \${sheet.folder_total.toFixed(2).replace('.', ',')}
-
-Observações: \${sheet.observations || 'N/A'}
-Conferida 2x: \${sheet.double_checked ? 'Sim' : 'Não'}
-Criada por: \${sheet.created_by_name}
-                \`);
+                // Criar HTML detalhado para visualização
+                const stockItemsHtml = sheet.stock_items && sheet.stock_items.length > 0
+                    ? sheet.stock_items.map(item => \`
+                        <tr>
+                            <td class="border px-3 py-2">\${item.quantity}</td>
+                            <td class="border px-3 py-2">\${item.item_name}</td>
+                            <td class="border px-3 py-2 text-right">R$ \${item.unit_value.toFixed(2).replace('.', ',')}</td>
+                            <td class="border px-3 py-2 text-right font-semibold">R$ \${item.total_value.toFixed(2).replace('.', ',')}</td>
+                        </tr>
+                    \`).join('')
+                    : '<tr><td colspan="4" class="border px-3 py-2 text-center text-gray-500">Nenhum item cadastrado</td></tr>';
+                
+                const viewContent = \`
+                    <div class="space-y-6" id="sheetToPrint">
+                        <!-- Cabeçalho -->
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-xl font-bold text-blue-800">Ficha #\${sheet.id}</h3>
+                                    <p class="text-gray-600 mt-1">Data: \${formattedDate}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-600">Criada por:</p>
+                                    <p class="font-semibold">\${sheet.created_by_name}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Informações do Fornecedor -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">Fornecedor</h4>
+                            <p class="text-lg">\${sheet.supplier_name}</p>
+                            <p class="text-sm text-gray-600 mt-1">Produto: \${sheet.product_type}</p>
+                        </div>
+                        
+                        <!-- Tabela de Estoque -->
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Itens do Estoque</h4>
+                            <table class="min-w-full border-collapse border">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="border px-3 py-2 text-left">Qtd</th>
+                                        <th class="border px-3 py-2 text-left">Item</th>
+                                        <th class="border px-3 py-2 text-right">Valor Unit.</th>
+                                        <th class="border px-3 py-2 text-right">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    \${stockItemsHtml}
+                                </tbody>
+                                <tfoot class="bg-gray-100">
+                                    <tr>
+                                        <td colspan="3" class="border px-3 py-2 text-right font-semibold">Total do Estoque:</td>
+                                        <td class="border px-3 py-2 text-right font-bold text-blue-600">
+                                            R$ \${(sheet.stock_total || 0).toFixed(2).replace('.', ',')}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+                        <!-- Informações Financeiras -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-yellow-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-700 mb-2">Fiado</h4>
+                                <p class="text-sm text-gray-600 mb-1">\${sheet.credit_text || 'Nenhum registro'}</p>
+                                <p class="text-lg font-bold text-yellow-600">R$ \${sheet.credit_total.toFixed(2).replace('.', ',')}</p>
+                            </div>
+                            
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-700 mb-2">Dinheiro do Envelope</h4>
+                                <p class="text-lg font-bold text-green-600">R$ \${sheet.envelope_money.toFixed(2).replace('.', ',')}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Observações e Ajustes -->
+                        \${sheet.observations ? \`
+                        <div class="bg-orange-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">Observações</h4>
+                            <p class="text-gray-700">\${sheet.observations}</p>
+                            \${sheet.observations_adjustment !== 0 ? \`
+                                <p class="mt-2 font-semibold text-orange-600">
+                                    Ajuste: \${sheet.observations_adjustment > 0 ? '+' : ''}R$ \${sheet.observations_adjustment.toFixed(2).replace('.', ',')}
+                                </p>
+                            \` : ''}
+                        </div>
+                        \` : ''}
+                        
+                        <!-- Total da Pasta -->
+                        <div class="bg-blue-100 p-6 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-lg font-bold text-blue-800">Total da Pasta</h4>
+                                <p class="text-2xl font-bold text-blue-600">R$ \${sheet.folder_total.toFixed(2).replace('.', ',')}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Status de Conferência -->
+                        <div class="flex items-center justify-center p-4 \${sheet.double_checked ? 'bg-green-100' : 'bg-red-100'} rounded-lg">
+                            <i class="fas \${sheet.double_checked ? 'fa-check-double' : 'fa-exclamation-triangle'} mr-2 \${sheet.double_checked ? 'text-green-600' : 'text-red-600'}"></i>
+                            <span class="font-semibold \${sheet.double_checked ? 'text-green-800' : 'text-red-800'}">
+                                \${sheet.double_checked ? 'Conferida 2x' : 'Não conferida 2x'}
+                            </span>
+                        </div>
+                    </div>
+                \`;
+                
+                // Inserir conteúdo no modal
+                document.getElementById('viewContent').innerHTML = viewContent;
+                
+                // Exibir modal
+                document.getElementById('viewModal').classList.add('active');
             }
+        }
+        
+        function closeViewModal() {
+            document.getElementById('viewModal').classList.remove('active');
+        }
+        
+        function printSheet() {
+            const element = document.getElementById('sheetToPrint');
+            
+            html2canvas(element, {
+                scale: 2,
+                logging: false,
+                useCORS: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const windowContent = '<!DOCTYPE html>' +
+                    '<html>' +
+                    '<head><title>Imprimir Ficha</title></head>' +
+                    '<body style="margin: 0; padding: 20px;">' +
+                    '<img src="' + imgData + '" style="width: 100%; max-width: 800px; display: block; margin: 0 auto;">' +
+                    '<script>window.onload = function() { window.print(); window.close(); }</' + 'script>' +
+                    '</body>' +
+                    '</html>';
+                
+                const printWindow = window.open('', '', 'width=900,height=650');
+                printWindow.document.open();
+                printWindow.document.write(windowContent);
+                printWindow.document.close();
+            });
         }
 
         function editSheet(id) {

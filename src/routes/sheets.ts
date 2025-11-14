@@ -29,9 +29,9 @@ const sheetSchema = z.object({
 function extractCreditValues(text: string): number {
   if (!text) return 0;
   
-  // Regex melhorada para capturar valores monetários
-  // Captura: R$ 1.000,00 ou R$1000 ou 1000.00 ou 1.000,00
-  const regex = /R?\$?\s*([0-9]{1,3}(?:[.,]?[0-9]{3})*(?:[.,][0-9]{2})?)/gi;
+  // Regex melhorada - procura por números que podem estar precedidos por R$
+  // Captura números como: 2000, 1000.50, 1.000,00, R$2000, R$ 1.000,00
+  const regex = /(?:R\$\s*)?([0-9]+(?:[.,]?[0-9]{3})*(?:[.,][0-9]{1,2})?)/gi;
   let total = 0;
   let match;
   
@@ -55,7 +55,7 @@ function extractObservationsAdjustment(text: string): number {
   if (!text) return 0;
   
   // Regex para capturar valores com + ou - na frente
-  const regex = /([+-])\s*R?\$?\s*([0-9]{1,3}(?:[.,]?[0-9]{3})*(?:[.,][0-9]{2})?)/gi;
+  const regex = /([+-])\s*(?:R\$\s*)?([0-9]+(?:[.,]?[0-9]{3})*(?:[.,][0-9]{1,2})?)/gi;
   let adjustment = 0;
   let match;
   
@@ -188,8 +188,8 @@ sheetsRoutes.post('/', async (c) => {
       }, 0);
     }
     
-    // Calcular total da pasta (fiado + dinheiro + ajustes)
-    const folderTotal = creditTotal + (data.envelope_money || 0) + observationsAdjustment;
+    // Calcular total da pasta (estoque + fiado + dinheiro + ajustes)
+    const folderTotal = stockTotal + creditTotal + (data.envelope_money || 0) + observationsAdjustment;
     
     // Primeiro, criar tabela de itens se não existir
     await c.env.DB.prepare(`
@@ -302,7 +302,8 @@ sheetsRoutes.put('/:id', async (c) => {
       }, 0);
     }
     
-    const folderTotal = creditTotal + (data.envelope_money || 0) + observationsAdjustment;
+    // Calcular total da pasta incluindo estoque
+    const folderTotal = stockTotal + creditTotal + (data.envelope_money || 0) + observationsAdjustment;
     
     // Atualizar ficha
     await c.env.DB.prepare(`

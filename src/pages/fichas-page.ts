@@ -282,7 +282,7 @@ export const fichasPage = `<!DOCTYPE html>
                 
                 <div class="bg-blue-50 p-4 rounded-lg mb-4">
                     <p class="text-lg font-semibold text-blue-900">Total da Pasta: <span id="totalPreview">R$ 0,00</span></p>
-                    <p class="text-xs text-blue-700 mt-1">(Fiado + Dinheiro + Ajustes das Observações)</p>
+                    <p class="text-xs text-blue-700 mt-1">(Estoque + Fiado + Dinheiro + Ajustes das Observações)</p>
                 </div>
                 
                 <div class="flex justify-end space-x-3">
@@ -331,8 +331,8 @@ export const fichasPage = `<!DOCTYPE html>
         function extractCreditValues(text) {
             if (!text) return 0;
             
-            // Regex melhorada para capturar valores monetários
-            const regex = /R?\\$?\\s*([0-9]{1,3}(?:[.,]?[0-9]{3})*(?:[.,][0-9]{2})?)/gi;
+            // Regex melhorada - procura por números que podem estar precedidos por R$
+            const regex = /(?:R\\$\\s*)?([0-9]+(?:[.,]?[0-9]{3})*(?:[.,][0-9]{1,2})?)/gi;
             let total = 0;
             let match;
             
@@ -354,7 +354,7 @@ export const fichasPage = `<!DOCTYPE html>
         function extractObservationsAdjustment(text) {
             if (!text) return 0;
             
-            const regex = /([+-])\\s*R?\\$?\\s*([0-9]{1,3}(?:[.,]?[0-9]{3})*(?:[.,][0-9]{2})?)/gi;
+            const regex = /([+-])\\s*(?:R\\$\\s*)?([0-9]+(?:[.,]?[0-9]{3})*(?:[.,][0-9]{1,2})?)/gi;
             let adjustment = 0;
             let match;
             
@@ -447,9 +447,18 @@ export const fichasPage = `<!DOCTYPE html>
             const envelopeMoney = parseFloat(document.getElementById('envelopeMoney').value) || 0;
             const observations = document.getElementById('observations').value;
             
+            // Obter total do estoque
+            let stockTotal = 0;
+            const items = document.querySelectorAll('.stock-item');
+            items.forEach(item => {
+                const quantity = parseFloat(item.querySelector('.stock-quantity').value) || 0;
+                const unitValue = parseFloat(item.querySelector('.stock-unit-value').value) || 0;
+                stockTotal += quantity * unitValue;
+            });
+            
             const creditTotal = extractCreditValues(creditText);
             const observationsAdjustment = extractObservationsAdjustment(observations);
-            const total = creditTotal + envelopeMoney + observationsAdjustment;
+            const total = stockTotal + creditTotal + envelopeMoney + observationsAdjustment;
             
             document.getElementById('creditPreview').textContent = \`R$ \${creditTotal.toFixed(2).replace('.', ',')}\`;
             document.getElementById('observationsAdjustmentPreview').textContent = 

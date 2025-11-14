@@ -1,34 +1,17 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "webapp",
-  "compatibility_date": "2025-11-14",
+  "name": "armazem-pai-filho",
+  "compatibility_date": "2024-01-01",
+  "compatibility_flags": ["nodejs_compat"],
   "pages_build_output_dir": "./dist",
-  "compatibility_flags": [
-    "nodejs_compat"
+  
+  // Banco de dados D1 - Apenas configuração de produção
+  // Local usará SQLite automático com --local
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "armazem-production",
+      "database_id": "your-database-id" // Será substituído após criar no Cloudflare
+    }
   ]
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  //   }
-  // ],
-  // "r2_buckets": [
-  //   {
-  //     "binding": "MY_BUCKET",
-  //     "bucket_name": "my-bucket"
-  //   }
-  // ],
-  // "d1_databases": [
-  //   {
-  //     "binding": "MY_DB",
-  //     "database_name": "my-database",
-  //     "database_id": ""
-  //   }
-  // ],
-  // "ai": {
-  //   "binding": "AI"
-  // }
 }

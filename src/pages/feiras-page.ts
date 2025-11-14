@@ -9,7 +9,6 @@ export const feirasPage = `<!DOCTYPE html>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -312,19 +311,13 @@ export const feirasPage = `<!DOCTYPE html>
                     <textarea id="observations" rows="3" placeholder="Observações sobre a feira..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
                 </div>
                 
-                <div class="flex justify-between items-center">
-                    <button type="button" onclick="printCurrentFair()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
-                        <i class="fas fa-print mr-2"></i>
-                        Imprimir Preview
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
+                        Cancelar
                     </button>
-                    <div class="flex space-x-3">
-                        <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
-                            Cancelar
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            Salvar
-                        </button>
-                    </div>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Salvar
+                    </button>
                 </div>
             </form>
         </div>
@@ -344,12 +337,8 @@ export const feirasPage = `<!DOCTYPE html>
                 <!-- Conteúdo será inserido dinamicamente -->
             </div>
             
-            <div class="flex justify-end space-x-3 mt-6 no-print">
-                <button onclick="printFair()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
-                    <i class="fas fa-print mr-2"></i>
-                    Imprimir
-                </button>
-                <button onclick="closeViewModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+            <div class="flex justify-end mt-6">
+                <button onclick="closeViewModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     Fechar
                 </button>
             </div>
@@ -700,164 +689,6 @@ export const feirasPage = `<!DOCTYPE html>
 
         function closeViewModal() {
             document.getElementById('viewModal').classList.remove('active');
-        }
-
-        function printFair() {
-            const element = document.getElementById('fairToPrint');
-            
-            html2canvas(element, {
-                scale: 2,
-                logging: false,
-                useCORS: true
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const windowContent = '<!DOCTYPE html>' +
-                    '<html>' +
-                    '<head><title>Imprimir Feira</title></head>' +
-                    '<body style="margin: 0; padding: 20px;">' +
-                    '<img src="' + imgData + '" style="width: 100%; max-width: 800px; display: block; margin: 0 auto;">' +
-                    '<script>window.onload = function() { window.print(); window.close(); }</' + 'script>' +
-                    '</body>' +
-                    '</html>';
-                
-                const printWindow = window.open('', '', 'width=900,height=650');
-                printWindow.document.open();
-                printWindow.document.write(windowContent);
-                printWindow.document.close();
-            });
-        }
-
-        // Imprimir preview da feira atual (modal de adicionar/editar)
-        function printCurrentFair() {
-            const date = document.getElementById('fairDate').value;
-            const location = document.getElementById('location').value;
-            const observations = document.getElementById('observations').value;
-            const fairId = document.getElementById('fairId').value;
-            
-            if (!date || !location) {
-                alert('Preencha data e local antes de imprimir');
-                return;
-            }
-            
-            // Coletar itens
-            const items = [];
-            document.querySelectorAll('.fair-item').forEach(item => {
-                const quantity = parseInt(item.querySelector('.item-quantity').value);
-                const category = item.querySelector('.item-category').value;
-                const unitValue = parseFloat(item.querySelector('.item-unit-value').value);
-                const total = quantity * unitValue;
-                
-                if (category && quantity && unitValue) {
-                    items.push({ quantity, category, unit_value: unitValue, total_value: total });
-                }
-            });
-            
-            if (items.length === 0) {
-                alert('Adicione pelo menos um item antes de imprimir');
-                return;
-            }
-            
-            // Calcular total
-            let totalValue = 0;
-            items.forEach(item => totalValue += item.total_value);
-            
-            // Formatar data
-            const dateObj = new Date(date + 'T00:00:00-03:00');
-            const formattedDate = dateObj.toLocaleDateString('pt-BR', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric',
-                timeZone: 'America/Fortaleza'
-            });
-            
-            // Criar HTML para impressão
-            const itemsHtml = items.map(item => \`
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">\${item.quantity}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">\${item.category}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">R$ \${item.unit_value.toFixed(2).replace('.', ',')}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right; font-weight: bold;">R$ \${item.total_value.toFixed(2).replace('.', ',')}</td>
-                </tr>
-            \`).join('');
-            
-            const printContent = \`
-                <div style="font-family: 'Poppins', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-                    <!-- Cabeçalho -->
-                    <div style="background-color: #eff6ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <div>
-                                <h1 style="color: #1e40af; margin: 0 0 10px 0; font-size: 24px;">Feira \${fairId ? '#' + fairId : '(Preview)'}</h1>
-                                <p style="color: #4b5563; margin: 5px 0;">Data: \${formattedDate}</p>
-                                <p style="color: #4b5563; margin: 5px 0;">Local: \${location}</p>
-                            </div>
-                            <div style="text-align: right;">
-                                <p style="color: #6b7280; margin: 5px 0; font-size: 14px;">Registrado por:</p>
-                                <p style="font-weight: 600; margin: 5px 0;">\${user.name}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Tabela de Itens -->
-                    <div style="margin-bottom: 20px;">
-                        <h2 style="color: #374151; font-size: 18px; margin-bottom: 10px;">Itens Levados</h2>
-                        <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
-                            <thead style="background-color: #f3f4f6;">
-                                <tr>
-                                    <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Qtd</th>
-                                    <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Categoria/Item</th>
-                                    <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Valor Unit.</th>
-                                    <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                \${itemsHtml}
-                            </tbody>
-                            <tfoot style="background-color: #f3f4f6;">
-                                <tr>
-                                    <td colspan="3" style="border: 1px solid #ddd; padding: 10px; text-align: right; font-weight: bold;">Total da Feira:</td>
-                                    <td style="border: 1px solid #ddd; padding: 10px; text-align: right; font-weight: bold; color: #059669; font-size: 18px;">
-                                        R$ \${totalValue.toFixed(2).replace('.', ',')}
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                    
-                    \${observations ? \`
-                    <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px;">
-                        <h3 style="color: #374151; font-size: 16px; margin: 0 0 10px 0;">Observações</h3>
-                        <p style="color: #374151; margin: 0;">\${observations}</p>
-                    </div>
-                    \` : ''}
-                    
-                    <div style="margin-top: 30px; text-align: center; color: #6b7280; font-size: 12px;">
-                        <p>Armazém Pai e Filho - Sistema de Gestão</p>
-                        <p>Impresso em \${new Date().toLocaleString('pt-BR', { timeZone: 'America/Fortaleza' })}</p>
-                    </div>
-                </div>
-            \`;
-            
-            // Criar janela de impressão
-            const printWindow = window.open('', '', 'width=900,height=650');
-            const htmlContent = '<!DOCTYPE html>' +
-                '<html>' +
-                '<head>' +
-                '<title>Imprimir Feira - ' + location + '</title>' +
-                '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">' +
-                '<style>' +
-                'body { margin: 0; padding: 20px; }' +
-                '@media print { body { padding: 0; } }' +
-                '</style>' +
-                '</head>' +
-                '<body>' +
-                printContent +
-                '<script>' +
-                'window.onload = function() { window.print(); }' +
-                '</script>' +
-                '</body>' +
-                '</html>';
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
         }
 
         // Editar feira

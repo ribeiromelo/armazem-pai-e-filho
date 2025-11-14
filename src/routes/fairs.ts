@@ -1,10 +1,11 @@
 import { Hono } from 'hono'
-
-type Bindings = {
-  DB: D1Database;
-}
+import { Bindings } from '../types'
+import { authMiddleware } from '../middleware/auth'
 
 const fairs = new Hono<{ Bindings: Bindings }>()
+
+// Aplicar middleware de autenticação
+fairs.use('*', authMiddleware)
 
 // Listar todas as feiras com filtros
 fairs.get('/', async (c) => {

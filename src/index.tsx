@@ -6,8 +6,10 @@ import { Bindings } from './types';
 import authRoutes from './routes/auth';
 import dashboardRoutes from './routes/dashboard';
 import suppliersRoutes from './routes/suppliers';
+import sheetsRoutes from './routes/sheets';
 import { dashboardPage } from './pages/dashboard-page';
 import { fornecedoresPage } from './pages/fornecedores-page';
+import { fichasPage } from './pages/fichas-page';
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -22,6 +24,7 @@ app.use('/api/*', cors({
 app.route('/api/auth', authRoutes);
 app.route('/api/dashboard', dashboardRoutes);
 app.route('/api/suppliers', suppliersRoutes);
+app.route('/api/sheets', sheetsRoutes);
 
 // Rota raiz - servir página de login diretamente
 app.get('/', (c) => {
@@ -308,6 +311,11 @@ app.get('/dashboard', (c) => {
 // Rota de Fornecedores
 app.get('/fornecedores', (c) => {
   return c.html(fornecedoresPage);
+});
+
+// Rota de Fichas Semanais
+app.get('/fichas', (c) => {
+  return c.html(fichasPage);
 });
 
 export default app;

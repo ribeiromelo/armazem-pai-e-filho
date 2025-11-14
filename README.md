@@ -39,13 +39,17 @@
    - Filtros por nome, produto e status
    - Validação de permissões
 
-## Funcionalidades Pendentes 🚧
-1. **Módulo de Fichas Semanais**
-   - Cadastro com extração automática de valores do campo fiado
+4. **Módulo de Fichas Semanais** ⭐ NOVO
+   - CRUD completo de fichas
+   - **Extração automática de valores do campo fiado** (detecta R$ automaticamente)
    - Cálculo automático do total da pasta
-   - Conferência dupla
+   - Filtros por fornecedor, mês e status de conferência
+   - Cards com estatísticas (totais, percentual conferido)
+   - Preview em tempo real dos valores
+   - Marcação de conferência dupla
 
-2. **Módulo de Feiras**
+## Funcionalidades Pendentes 🚧
+1. **Módulo de Feiras**
    - Registro de itens levados
    - Cálculo automático do valor total
 
@@ -127,4 +131,4 @@ pm2 logs armazem --nostream
 - **Plataforma**: Cloudflare Pages (preparado)
 - **Status**: ✅ Ativo (desenvolvimento)
 - **Stack**: Hono + TypeScript + TailwindCSS + Cloudflare D1
-- **Última Atualização**: 14/11/2024
+- **Última Atualização**: 14/11/2024 - Módulo de Fichas Semanais implementado

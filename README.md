@@ -8,7 +8,9 @@
 ## URLs de Acesso
 - **Desenvolvimento**: https://3000-is5kvpf9vmq0ywkrakwpd-0e616f0a.sandbox.novita.ai
 - **API Health Check**: https://3000-is5kvpf9vmq0ywkrakwpd-0e616f0a.sandbox.novita.ai/api/health
+- **Módulo de Feiras**: https://3000-is5kvpf9vmq0ywkrakwpd-0e616f0a.sandbox.novita.ai/feiras
 - **GitHub**: [Será configurado]
+- **Backup do Projeto**: https://www.genspark.ai/api/files/s/ojaFBq3o
 
 ## Arquitetura de Dados
 - **Banco de Dados**: Cloudflare D1 (SQLite)

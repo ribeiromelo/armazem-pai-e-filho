@@ -16,6 +16,7 @@
   - `users`: Gerenciamento de usuários e permissões
   - `suppliers`: Cadastro de fornecedores
   - `weekly_sheets`: Fichas semanais com controle de fiado e dinheiro
+  - `sheet_stock_items`: Itens de estoque das fichas (quantidade × valor)
   - `fairs`: Registro de feiras
   - `fair_items`: Itens vendidos nas feiras
   - `receipts`: Recibos gerados
@@ -39,10 +40,15 @@
    - Filtros por nome, produto e status
    - Validação de permissões
 
-4. **Módulo de Fichas Semanais** ⭐ NOVO
+4. **Módulo de Fichas Semanais** ⭐ ATUALIZADO
    - CRUD completo de fichas
+   - **Gestão de estoque com múltiplos itens** (quantidade × valor unitário)
    - **Extração automática de valores do campo fiado** (detecta R$ automaticamente)
-   - Cálculo automático do total da pasta
+   - **Campo de observações com ajustes (+/-)** afetando o total
+   - Cálculo automático do total da pasta (estoque + fiado + dinheiro + ajustes)
+   - **Modal bonito para visualização detalhada da ficha**
+   - **Função de impressão usando html2canvas**
+   - **Datas no padrão brasileiro (DD/MM/AAAA)** com fuso horário de Fortaleza
    - Filtros por fornecedor, mês e status de conferência
    - Cards com estatísticas (totais, percentual conferido)
    - Preview em tempo real dos valores
@@ -119,7 +125,7 @@ pm2 logs armazem --nostream
 ```
 
 ## Próximos Passos Recomendados
-1. Implementar módulo de Fichas Semanais com extração automática de valores
+1. ~~Implementar módulo de Fichas Semanais com extração automática de valores~~ ✅
 2. Criar módulo de Feiras com cálculo automático
 3. Implementar geração de recibos em PDF
 4. Adicionar gráficos no módulo financeiro usando Chart.js
@@ -131,4 +137,4 @@ pm2 logs armazem --nostream
 - **Plataforma**: Cloudflare Pages (preparado)
 - **Status**: ✅ Ativo (desenvolvimento)
 - **Stack**: Hono + TypeScript + TailwindCSS + Cloudflare D1
-- **Última Atualização**: 14/11/2024 - Módulo de Fichas Semanais implementado
+- **Última Atualização**: 14/11/2024 - Modal de visualização com impressão e ajuste de fuso horário

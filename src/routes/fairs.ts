@@ -99,6 +99,11 @@ fairs.post('/', async (c) => {
   const user = c.get('user')
   
   try {
+    // Validar autenticação
+    if (!user || !user.id) {
+      return c.json({ error: 'Usuário não autenticado' }, 401)
+    }
+    
     const data = await c.req.json()
     const { date, location, observations, items } = data
     
@@ -107,10 +112,20 @@ fairs.post('/', async (c) => {
       return c.json({ error: 'Data, local e itens são obrigatórios' }, 400)
     }
     
+    // Validar itens
+    for (const item of items) {
+      if (!item.quantity || !item.category || item.unit_value === undefined) {
+        return c.json({ error: 'Todos os itens devem ter quantidade, categoria e valor unitário' }, 400)
+      }
+    }
+    
     // Calcular total da feira
     let totalValue = 0
     for (const item of items) {
-      const itemTotal = item.quantity * item.unit_value
+      const itemTotal = Number(item.quantity) * Number(item.unit_value)
+      if (isNaN(itemTotal)) {
+        return c.json({ error: 'Valores inválidos nos itens' }, 400)
+      }
       totalValue += itemTotal
     }
     
@@ -118,17 +133,32 @@ fairs.post('/', async (c) => {
     const fairResult = await env.DB.prepare(`
       INSERT INTO fairs (date, location, total_value, observations, created_by)
       VALUES (?, ?, ?, ?, ?)
-    `).bind(date, location, totalValue, observations || null, user.id).run()
+    `).bind(
+      date, 
+      location, 
+      totalValue, 
+      observations || null, 
+      user.id
+    ).run()
     
     const fairId = fairResult.meta.last_row_id
     
     // Inserir itens
     for (const item of items) {
-      const itemTotal = item.quantity * item.unit_value
+      const quantity = Number(item.quantity)
+      const unitValue = Number(item.unit_value)
+      const itemTotal = quantity * unitValue
+      
       await env.DB.prepare(`
         INSERT INTO fair_items (fair_id, quantity, category, unit_value, total_value)
         VALUES (?, ?, ?, ?, ?)
-      `).bind(fairId, item.quantity, item.category, item.unit_value, itemTotal).run()
+      `).bind(
+        fairId, 
+        quantity, 
+        item.category, 
+        unitValue, 
+        itemTotal
+      ).run()
     }
     
     return c.json({ 
@@ -155,10 +185,20 @@ fairs.put('/:id', async (c) => {
       return c.json({ error: 'Data, local e itens são obrigatórios' }, 400)
     }
     
+    // Validar itens
+    for (const item of items) {
+      if (!item.quantity || !item.category || item.unit_value === undefined) {
+        return c.json({ error: 'Todos os itens devem ter quantidade, categoria e valor unitário' }, 400)
+      }
+    }
+    
     // Calcular total da feira
     let totalValue = 0
     for (const item of items) {
-      const itemTotal = item.quantity * item.unit_value
+      const itemTotal = Number(item.quantity) * Number(item.unit_value)
+      if (isNaN(itemTotal)) {
+        return c.json({ error: 'Valores inválidos nos itens' }, 400)
+      }
       totalValue += itemTotal
     }
     
@@ -174,11 +214,20 @@ fairs.put('/:id', async (c) => {
     
     // Inserir novos itens
     for (const item of items) {
-      const itemTotal = item.quantity * item.unit_value
+      const quantity = Number(item.quantity)
+      const unitValue = Number(item.unit_value)
+      const itemTotal = quantity * unitValue
+      
       await env.DB.prepare(`
         INSERT INTO fair_items (fair_id, quantity, category, unit_value, total_value)
         VALUES (?, ?, ?, ?, ?)
-      `).bind(id, item.quantity, item.category, item.unit_value, itemTotal).run()
+      `).bind(
+        id, 
+        quantity, 
+        item.category, 
+        unitValue, 
+        itemTotal
+      ).run()
     }
     
     return c.json({ 

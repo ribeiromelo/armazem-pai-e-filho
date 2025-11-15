@@ -56,6 +56,61 @@ export const feirasPage = `<!DOCTYPE html>
         @media print {
             .no-print { display: none !important; }
         }
+        
+        /* Toast Notification Styles */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 300px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+        
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .toast.warning {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        
+        .toast.hiding {
+            animation: slideOutRight 0.3s ease-out;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -368,6 +423,38 @@ export const feirasPage = `<!DOCTYPE html>
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/';
+        }
+
+        // Função para mostrar notificações toast
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = \`toast \${type}\`;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 
+                        type === 'error' ? 'fa-exclamation-circle' : 
+                        'fa-exclamation-triangle';
+            
+            const color = type === 'success' ? 'text-green-600' : 
+                         type === 'error' ? 'text-red-600' : 
+                         'text-yellow-600';
+            
+            toast.innerHTML = \`
+                <i class="fas \${icon} \${color} text-xl"></i>
+                <div class="flex-1">
+                    <p class="font-medium text-gray-800">\${message}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            \`;
+            
+            document.body.appendChild(toast);
+            
+            // Remover automaticamente após 3 segundos
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         let fairs = [];
@@ -728,14 +815,14 @@ export const feirasPage = `<!DOCTYPE html>
                 });
                 
                 if (response.ok) {
-                    alert('Feira deletada com sucesso!');
+                    showToast('Feira deletada com sucesso!', 'success');
                     loadFairs();
                 } else {
-                    alert('Erro ao deletar feira');
+                    showToast('Erro ao deletar feira', 'error');
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao deletar feira');
+                showToast('Erro ao deletar feira', 'error');
             }
         }
 
@@ -759,7 +846,7 @@ export const feirasPage = `<!DOCTYPE html>
             });
             
             if (items.length === 0) {
-                alert('Adicione pelo menos um item à feira');
+                showToast('Adicione pelo menos um item à feira', 'warning');
                 return;
             }
             
@@ -779,16 +866,16 @@ export const feirasPage = `<!DOCTYPE html>
                 });
                 
                 if (response.ok) {
-                    alert(fairId ? 'Feira atualizada com sucesso!' : 'Feira criada com sucesso!');
+                    showToast(fairId ? 'Feira atualizada com sucesso!' : 'Feira criada com sucesso!', 'success');
                     closeModal();
                     loadFairs();
                 } else {
                     const error = await response.json();
-                    alert(\`Erro: \${error.error}\`);
+                    showToast(\`Erro: \${error.error}\`, 'error');
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao salvar feira');
+                showToast('Erro ao salvar feira', 'error');
             }
         });
 

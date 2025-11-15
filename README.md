@@ -56,7 +56,7 @@
    - Preview em tempo real dos valores
    - Marcação de conferência dupla
 
-5. **Módulo de Feiras** ✅ NOVO
+5. **Módulo de Feiras** ✅
    - CRUD completo de feiras
    - **Adicionar múltiplos itens** (quantidade × valor unitário)
    - **Cálculo automático do valor total da feira**
@@ -66,12 +66,27 @@
    - **Datas no padrão brasileiro** com fuso horário de Fortaleza
    - Controle de permissões por usuário
 
-## Funcionalidades Pendentes 🚧
-1. **Módulo de Recibos**
-   - Geração de PDF personalizado
-   - Logo e formatação padronizada
+6. **Módulo de Recibos** ✅ NOVO - 100% COMPLETO
+   - CRUD completo de recibos
+   - **Formulário com múltiplos itens** (quantidade × valor unitário)
+   - **Cálculo automático em tempo real**
+   - **Formatação automática de CPF** durante digitação
+   - Filtros por mês e cliente
+   - **Cards com estatísticas** (total de recibos, valores, média, maior)
+   - **Preview profissional do recibo** com design elegante
+   - **Geração de PDF com jsPDF** - Layout corporativo completo:
+     - Cabeçalho azul com branding
+     - Informações do cliente organizadas
+     - Tabela de itens estilizada
+     - Espaço para assinatura
+     - Observações destacadas
+     - Rodapé com dados do sistema
+   - **Datas no padrão brasileiro** (DD/MM/AAAA - Fortaleza/CE)
+   - Sistema de notificações toast
+   - **Totalmente responsivo** (mobile, tablet, desktop)
 
-4. **Módulo Financeiro**
+## Funcionalidades Pendentes 🚧
+1. **Módulo Financeiro**
    - Gráficos de fluxo de caixa
    - Comparativos semanais
    - Evolução de dívidas
@@ -135,7 +150,7 @@ pm2 logs armazem --nostream
 ## Próximos Passos Recomendados
 1. ~~Implementar módulo de Fichas Semanais com extração automática de valores~~ ✅
 2. ~~Criar módulo de Feiras com cálculo automático~~ ✅
-3. Implementar geração de recibos em PDF
+3. ~~Implementar geração de recibos em PDF~~ ✅
 4. Adicionar gráficos no módulo financeiro usando Chart.js
 5. Completar módulo de gestão de usuários
 6. Configurar deploy no Cloudflare Pages
@@ -156,5 +171,5 @@ pm2 logs armazem --nostream
 ## Status de Deployment
 - **Plataforma**: Cloudflare Pages (preparado)
 - **Status**: ✅ Ativo (desenvolvimento)
-- **Stack**: Hono + TypeScript + TailwindCSS + Cloudflare D1
-- **Última Atualização**: 15/11/2024 - Sistema totalmente responsivo para mobile/tablet
+- **Stack**: Hono + TypeScript + TailwindCSS + Cloudflare D1 + jsPDF
+- **Última Atualização**: 15/11/2024 - Módulo de Recibos 100% completo com geração de PDF

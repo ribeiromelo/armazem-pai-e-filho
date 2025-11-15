@@ -14,6 +14,35 @@ export const feirasPage = `<!DOCTYPE html>
             font-family: 'Poppins', sans-serif;
         }
         
+        /* Sidebar Mobile Toggle */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                z-index: 40;
+                transform: translateX(-100%);
+            }
+            
+            #sidebar.active {
+                transform: translateX(0);
+            }
+            
+            #overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 30;
+            }
+            
+            #overlay.active {
+                display: block;
+            }
+        }
+        
         /* Modal Styles */
         .modal {
             display: none;
@@ -114,9 +143,12 @@ export const feirasPage = `<!DOCTYPE html>
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- Overlay para mobile -->
+    <div id="overlay" onclick="toggleSidebar()"></div>
+    
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 bg-blue-600 text-white">
+        <aside id="sidebar" class="w-64 bg-blue-600 text-white md:relative md:translate-x-0">
             <div class="p-6">
                 <h1 class="text-2xl font-bold">Armazém P&F</h1>
                 <p class="text-blue-200 text-sm mt-1">Sistema de Gestão</p>
@@ -169,31 +201,39 @@ export const feirasPage = `<!DOCTYPE html>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
+        <main class="flex-1 overflow-y-auto w-full">
             <!-- Header -->
             <header class="bg-white shadow-sm border-b border-gray-200">
-                <div class="px-8 py-4 flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-semibold text-gray-800">Feiras</h2>
-                        <p class="text-gray-600 text-sm mt-1">Registre e controle suas vendas em feiras</p>
+                <div class="px-4 md:px-8 py-4 flex justify-between items-center">
+                    <div class="flex items-center flex-1">
+                        <!-- Botão Menu Mobile -->
+                        <button onclick="toggleSidebar()" class="md:hidden mr-3 text-gray-600 hover:text-gray-800">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        
+                        <div>
+                            <h2 class="text-xl md:text-2xl font-semibold text-gray-800">Feiras</h2>
+                            <p class="text-gray-600 text-xs md:text-sm mt-1 hidden sm:block">Registre e controle suas vendas em feiras</p>
+                        </div>
                     </div>
                     <button 
                         onclick="openModal()" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 rounded-lg flex items-center text-sm md:text-base"
                         id="btnAddFair"
                     >
-                        <i class="fas fa-plus mr-2"></i>
-                        Nova Feira
+                        <i class="fas fa-plus mr-1 md:mr-2"></i>
+                        <span class="hidden sm:inline">Nova</span>
+                        <span class="hidden md:inline"> Feira</span>
                     </button>
                 </div>
             </header>
 
             <!-- Content -->
-            <div class="p-8">
+            <div class="p-4 md:p-8">
                 <!-- Filtros -->
-                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-4 md:mb-6">
                     <h3 class="text-lg font-semibold mb-4">Filtros</h3>
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Mês</label>
                             <select id="monthFilter" onchange="loadFairs()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -227,8 +267,8 @@ export const feirasPage = `<!DOCTYPE html>
                 </div>
 
                 <!-- Cards de Estatísticas -->
-                <div class="grid grid-cols-4 gap-6 mb-6">
-                    <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-4 md:mb-6">
+                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600 mb-1">Total de Feiras</p>
@@ -240,7 +280,7 @@ export const feirasPage = `<!DOCTYPE html>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600 mb-1">Faturamento Total</p>
@@ -252,7 +292,7 @@ export const feirasPage = `<!DOCTYPE html>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600 mb-1">Média por Feira</p>
@@ -264,7 +304,7 @@ export const feirasPage = `<!DOCTYPE html>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600 mb-1">Melhor Feira</p>
@@ -279,7 +319,8 @@ export const feirasPage = `<!DOCTYPE html>
 
                 <!-- Tabela de Feiras -->
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -310,19 +351,20 @@ export const feirasPage = `<!DOCTYPE html>
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
     <!-- Modal Adicionar/Editar -->
-    <div id="fairModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div id="fairModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg p-4 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <h3 class="text-xl font-semibold mb-4" id="modalTitle">Nova Feira</h3>
             <form id="fairForm">
                 <input type="hidden" id="fairId">
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Data da Feira *</label>
                         <input type="date" id="fairDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -878,6 +920,14 @@ export const feirasPage = `<!DOCTYPE html>
                 showToast('Erro ao salvar feira', 'error');
             }
         });
+
+        // Toggle sidebar mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
 
         // Inicializar
         initializeYearFilter();

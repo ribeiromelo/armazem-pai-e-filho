@@ -13,12 +13,44 @@ export const dashboardPage = `<!DOCTYPE html>
         body {
             font-family: 'Poppins', sans-serif;
         }
+        
+        /* Sidebar Mobile Toggle */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                z-index: 40;
+                transform: translateX(-100%);
+            }
+            
+            #sidebar.active {
+                transform: translateX(0);
+            }
+            
+            #overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 30;
+            }
+            
+            #overlay.active {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- Overlay para mobile -->
+    <div id="overlay" onclick="toggleSidebar()"></div>
+    
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 bg-blue-600 text-white">
+        <aside id="sidebar" class="w-64 bg-blue-600 text-white md:relative md:translate-x-0">
             <div class="p-6">
                 <h1 class="text-2xl font-bold">Armazém P&F</h1>
                 <p class="text-blue-200 text-sm mt-1">Sistema de Gestão</p>
@@ -71,19 +103,26 @@ export const dashboardPage = `<!DOCTYPE html>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
+        <main class="flex-1 overflow-y-auto w-full">
             <!-- Header -->
             <header class="bg-white shadow-sm border-b border-gray-200">
-                <div class="px-8 py-4">
-                    <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
-                    <p class="text-gray-600 text-sm mt-1">Visão geral do sistema</p>
+                <div class="px-4 md:px-8 py-4 flex items-center">
+                    <!-- Botão Menu Mobile -->
+                    <button onclick="toggleSidebar()" class="md:hidden mr-4 text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-semibold text-gray-800">Dashboard</h2>
+                        <p class="text-gray-600 text-xs md:text-sm mt-1">Visão geral do sistema</p>
+                    </div>
                 </div>
             </header>
 
             <!-- Content -->
-            <div class="p-8">
+            <div class="p-4 md:p-8">
                 <!-- Cards de Resumo -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
                     <!-- Card Dinheiro -->
                     <div class="bg-white rounded-lg shadow-sm p-6">
                         <div class="flex items-center justify-between mb-4">
@@ -134,11 +173,11 @@ export const dashboardPage = `<!DOCTYPE html>
                 </div>
 
                 <!-- Ações Rápidas -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
                     <!-- Ações -->
-                    <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">Ações Rápidas</h3>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-2 gap-3 md:gap-4">
                             <a href="/fichas?action=new" class="flex flex-col items-center justify-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
                                 <i class="fas fa-plus-circle text-blue-600 text-2xl mb-2"></i>
                                 <span class="text-sm font-medium text-gray-700">Nova Ficha</span>
@@ -159,7 +198,7 @@ export const dashboardPage = `<!DOCTYPE html>
                     </div>
 
                     <!-- Últimas Fichas -->
-                    <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-800">Últimas Fichas</h3>
                             <a href="/fichas" class="text-sm text-blue-600 hover:text-blue-700">Ver todas →</a>
@@ -172,14 +211,14 @@ export const dashboardPage = `<!DOCTYPE html>
 
                 <!-- Tabela de Fornecedores Ativos -->
                 <div class="bg-white rounded-lg shadow-sm">
-                    <div class="p-6 border-b border-gray-200">
+                    <div class="p-4 md:p-6 border-b border-gray-200">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold text-gray-800">Fornecedores Ativos</h3>
                             <a href="/fornecedores" class="text-sm text-blue-600 hover:text-blue-700">Ver todos →</a>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <table class="w-full min-w-[600px]">
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -298,6 +337,14 @@ export const dashboardPage = `<!DOCTYPE html>
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
             }
+        }
+
+        // Toggle sidebar mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
         }
 
         // Carregar dados ao iniciar

@@ -10,7 +10,9 @@ fairs.use('*', authMiddleware)
 // Listar todas as feiras com filtros
 fairs.get('/', async (c) => {
   const { env } = c
-  const { month, year } = c.req.query()
+  const queryParams = c.req.query()
+  const month = queryParams.month || ''
+  const year = queryParams.year || ''
   
   try {
     let query = `
@@ -206,7 +208,9 @@ fairs.delete('/:id', async (c) => {
 // Estatísticas de feiras
 fairs.get('/stats/summary', async (c) => {
   const { env } = c
-  const { month, year } = c.req.query()
+  const query = c.req.query()
+  const month = query.month || ''
+  const year = query.year || ''
   
   try {
     let conditions = []

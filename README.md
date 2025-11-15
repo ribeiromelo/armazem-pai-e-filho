@@ -141,8 +141,20 @@ pm2 logs armazem --nostream
 6. Configurar deploy no Cloudflare Pages
 7. Adicionar backup automático de dados
 
+## Design System 🎨
+- **Framework CSS**: TailwindCSS
+- **Fonte**: Poppins (Google Fonts)
+- **Esquema de Cores**: Azul/Branco
+- **Ícones**: Font Awesome 6
+- **Responsividade**: ✅ **TOTALMENTE RESPONSIVO**
+  - **Desktop** (lg): Layout completo com sidebar fixa
+  - **Tablet** (md): Sidebar toggle, cards em 2-3 colunas
+  - **Mobile** (sm): Sidebar overlay, cards empilhados, scroll horizontal em tabelas
+- **Formato de Data**: DD/MM/AAAA (Fuso: America/Fortaleza - Ceará)
+- **Notificações**: Toast moderno (substituindo alerts nativos)
+
 ## Status de Deployment
 - **Plataforma**: Cloudflare Pages (preparado)
 - **Status**: ✅ Ativo (desenvolvimento)
 - **Stack**: Hono + TypeScript + TailwindCSS + Cloudflare D1
-- **Última Atualização**: 14/11/2024 - Design system padronizado em todas as páginas
+- **Última Atualização**: 15/11/2024 - Sistema totalmente responsivo para mobile/tablet

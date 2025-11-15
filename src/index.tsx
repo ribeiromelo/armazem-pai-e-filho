@@ -8,10 +8,12 @@ import dashboardRoutes from './routes/dashboard';
 import suppliersRoutes from './routes/suppliers';
 import sheetsRoutes from './routes/sheets';
 import fairsRoutes from './routes/fairs';
+import receiptsRoutes from './routes/receipts';
 import { dashboardPage } from './pages/dashboard-page';
 import { fornecedoresPage } from './pages/fornecedores-page';
 import { fichasPage } from './pages/fichas-page';
 import { feirasPage } from './pages/feiras-page';
+import { recibosPage } from './pages/recibos-page';
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -28,6 +30,7 @@ app.route('/api/dashboard', dashboardRoutes);
 app.route('/api/suppliers', suppliersRoutes);
 app.route('/api/sheets', sheetsRoutes);
 app.route('/api/fairs', fairsRoutes);
+app.route('/api/receipts', receiptsRoutes);
 
 // Rota raiz - servir página de login diretamente
 app.get('/', (c) => {
@@ -324,6 +327,11 @@ app.get('/fichas', (c) => {
 // Rota de Feiras
 app.get('/feiras', (c) => {
   return c.html(feirasPage);
+});
+
+// Rota de Recibos
+app.get('/recibos', (c) => {
+  return c.html(recibosPage);
 });
 
 export default app;

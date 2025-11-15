@@ -145,4 +145,4 @@ pm2 logs armazem --nostream
 - **Plataforma**: Cloudflare Pages (preparado)
 - **Status**: ✅ Ativo (desenvolvimento)
 - **Stack**: Hono + TypeScript + TailwindCSS + Cloudflare D1
-- **Última Atualização**: 14/11/2024 - Módulo de Feiras implementado
+- **Última Atualização**: 14/11/2024 - Design system padronizado em todas as páginas

@@ -64,34 +64,9 @@ CREATE TABLE IF NOT EXISTS fair_items (
   FOREIGN KEY (fair_id) REFERENCES fairs(id) ON DELETE CASCADE
 );
 
--- Tabela de recibos
-CREATE TABLE IF NOT EXISTS receipts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  buyer_name TEXT NOT NULL,
-  date DATE NOT NULL,
-  total_value DECIMAL(10,2) NOT NULL,
-  signature TEXT,
-  created_by INTEGER NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (created_by) REFERENCES users(id)
-);
-
--- Tabela de itens dos recibos
-CREATE TABLE IF NOT EXISTS receipt_items (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  receipt_id INTEGER NOT NULL,
-  product_name TEXT NOT NULL,
-  quantity INTEGER NOT NULL,
-  unit_value DECIMAL(10,2) NOT NULL,
-  total_value DECIMAL(10,2) NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (receipt_id) REFERENCES receipts(id) ON DELETE CASCADE
-);
-
 -- Criar índices
 CREATE INDEX IF NOT EXISTS idx_suppliers_status ON suppliers(status);
 CREATE INDEX IF NOT EXISTS idx_weekly_sheets_supplier ON weekly_sheets(supplier_id);
 CREATE INDEX IF NOT EXISTS idx_weekly_sheets_date ON weekly_sheets(date);
 CREATE INDEX IF NOT EXISTS idx_fairs_date ON fairs(date);
-CREATE INDEX IF NOT EXISTS idx_receipts_date ON receipts(date);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);

@@ -34,7 +34,7 @@ authRoutes.post('/login', async (c) => {
     }
     
     // Gerar token
-    const token = generateToken(user as any);
+    const token = await generateToken(user as any);
     
     // Remover senha do objeto de resposta
     const { password: _, ...userWithoutPassword } = user;

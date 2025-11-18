@@ -9,7 +9,7 @@ export async function authMiddleware(c: Context<{ Bindings: Bindings }>, next: N
     return c.json({ error: 'Token não fornecido' }, 401);
   }
   
-  const payload = verifyToken(token);
+  const payload = await verifyToken(token);
   
   if (!payload) {
     return c.json({ error: 'Token inválido' }, 401);

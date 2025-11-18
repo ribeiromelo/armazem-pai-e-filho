@@ -1,19 +1,86 @@
 import { User, AuthPayload } from '../types';
 
-// Usar Web Crypto API para hash de senha (compatível com Cloudflare Workers)
+// PBKDF2 para hash de senha seguro (compatível com Cloudflare Workers)
 export async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hash));
+  const passwordData = encoder.encode(password);
+  
+  // Gerar salt aleatório de 16 bytes
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  
+  // Importar senha como chave
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    passwordData,
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+  
+  // Derivar hash usando PBKDF2 com 100.000 iterações
+  const derivedBits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: salt,
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    256 // 32 bytes
+  );
+  
+  const hashArray = Array.from(new Uint8Array(derivedBits));
+  const saltArray = Array.from(salt);
+  
+  // Combinar salt + hash em formato: salt(hex):hash(hex)
+  const saltHex = saltArray.map(b => b.toString(16).padStart(2, '0')).join('');
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+  
+  return `${saltHex}:${hashHex}`;
 }
 
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  const passwordHash = await hashPassword(password);
-  return passwordHash === hash;
+export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
+  try {
+    const [saltHex, hashHex] = storedHash.split(':');
+    
+    // Converter salt de hex para bytes
+    const salt = new Uint8Array(saltHex.match(/.{2}/g)!.map(byte => parseInt(byte, 16)));
+    
+    const encoder = new TextEncoder();
+    const passwordData = encoder.encode(password);
+    
+    // Importar senha como chave
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      passwordData,
+      'PBKDF2',
+      false,
+      ['deriveBits']
+    );
+    
+    // Derivar hash com o mesmo salt
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      256
+    );
+    
+    const hashArray = Array.from(new Uint8Array(derivedBits));
+    const computedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    return computedHash === hashHex;
+  } catch (error) {
+    return false;
+  }
 }
+
+// JWT Secret (deve ser configurado via variável de ambiente)
+const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
 
 // JWT simples para Cloudflare Workers
 function base64url(str: string): string {
@@ -28,7 +95,26 @@ function base64urlDecode(str: string): string {
   return atob(str.replace(/-/g, '+').replace(/_/g, '/'));
 }
 
-export function generateToken(user: User): string {
+// HMAC-SHA256 para assinatura JWT usando Web Crypto API
+async function signJWT(data: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(JWT_SECRET);
+  const dataToSign = encoder.encode(data);
+  
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  
+  const signature = await crypto.subtle.sign('HMAC', key, dataToSign);
+  const hashArray = Array.from(new Uint8Array(signature));
+  return base64url(hashArray.map(b => b.toString(16).padStart(2, '0')).join(''));
+}
+
+export async function generateToken(user: User): Promise<string> {
   const header = { alg: 'HS256', typ: 'JWT' };
   const payload: AuthPayload & { exp: number } = {
     userId: user.id,
@@ -41,18 +127,18 @@ export function generateToken(user: User): string {
   const headerB64 = base64url(JSON.stringify(header));
   const payloadB64 = base64url(JSON.stringify(payload));
   
-  // Criar assinatura simples (em produção, usar uma biblioteca JWT adequada)
-  const signature = base64url(headerB64 + '.' + payloadB64 + '.secret');
+  // Assinatura HMAC segura
+  const signature = await signJWT(headerB64 + '.' + payloadB64);
   
   return `${headerB64}.${payloadB64}.${signature}`;
 }
 
-export function verifyToken(token: string): AuthPayload | null {
+export async function verifyToken(token: string): Promise<AuthPayload | null> {
   try {
     const [headerB64, payloadB64, signature] = token.split('.');
     
-    // Verificar assinatura simples
-    const expectedSignature = base64url(headerB64 + '.' + payloadB64 + '.secret');
+    // Verificar assinatura HMAC
+    const expectedSignature = await signJWT(headerB64 + '.' + payloadB64);
     if (signature !== expectedSignature) {
       return null;
     }

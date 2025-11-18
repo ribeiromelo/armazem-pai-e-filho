@@ -9,19 +9,36 @@ import suppliersRoutes from './routes/suppliers';
 import sheetsRoutes from './routes/sheets';
 import fairsRoutes from './routes/fairs';
 import receiptsRoutes from './routes/receipts';
+import financialRoutes from './routes/financial';
+import usersRoutes from './routes/users';
 import { dashboardPage } from './pages/dashboard-page';
 import { fornecedoresPage } from './pages/fornecedores-page';
 import { fichasPage } from './pages/fichas-page';
 import { feirasPage } from './pages/feiras-page';
 import { recibosPage } from './pages/recibos-page';
+import { financeiroPage } from './pages/financeiro-page';
+import { usuariosPage } from './pages/usuarios-page';
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// Configurar CORS
+// Configurar CORS - Restritivo para produção
 app.use('/api/*', cors({
-  origin: '*',
+  origin: (origin) => {
+    // Em desenvolvimento, permitir localhost
+    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return origin || '*';
+    }
+    // Em produção, permitir apenas domínios específicos
+    const allowedDomains = [
+      'https://armazem-pai-e-filho.pages.dev',
+      'https://your-custom-domain.com'
+    ];
+    return allowedDomains.includes(origin) ? origin : '';
+  },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization']
+  allowHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  maxAge: 86400 // Cache preflight por 24h
 }));
 
 // Rotas da API
@@ -31,6 +48,8 @@ app.route('/api/suppliers', suppliersRoutes);
 app.route('/api/sheets', sheetsRoutes);
 app.route('/api/fairs', fairsRoutes);
 app.route('/api/receipts', receiptsRoutes);
+app.route('/api/financial', financialRoutes);
+app.route('/api/users', usersRoutes);
 
 // Rota raiz - servir página de login diretamente
 app.get('/', (c) => {
@@ -332,6 +351,16 @@ app.get('/feiras', (c) => {
 // Rota de Recibos
 app.get('/recibos', (c) => {
   return c.html(recibosPage);
+});
+
+// Rota de Financeiro
+app.get('/financeiro', (c) => {
+  return c.html(financeiroPage);
+});
+
+// Rota de Usuários
+app.get('/usuarios', (c) => {
+  return c.html(usuariosPage);
 });
 
 export default app;

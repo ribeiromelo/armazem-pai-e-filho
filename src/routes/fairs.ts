@@ -124,7 +124,7 @@ fairs.post('/', async (c) => {
       location, 
       totalValue, 
       observations || '', 
-      user?.id || 1
+      user?.userId || 1
     ).run()
     
     const fairId = fairResult.meta.last_row_id

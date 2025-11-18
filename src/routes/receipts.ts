@@ -158,7 +158,7 @@ receipts.post('/', async (c) => {
       description || '',
       totalValue,
       payment_method || 'Dinheiro',
-      user?.id || 1
+      user?.userId || 1
     ).run()
     
     const receiptId = receiptResult.meta.last_row_id

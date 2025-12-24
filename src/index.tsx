@@ -138,13 +138,6 @@ app.get('/', (c) => {
                     Entrar
                 </button>
             </form>
-            
-            <!-- Botão Setup Admin (temporário) -->
-            <div class="mt-4 text-center">
-                <button onclick="setupAdmin()" class="text-sm text-blue-600 hover:text-blue-700">
-                    Criar Admin Inicial (primeira vez)
-                </button>
-            </div>
         </div>
 
         <!-- Footer -->
@@ -196,139 +189,11 @@ app.get('/', (c) => {
                 errorMessage.classList.remove('hidden');
             }
         });
-        
-        async function setupAdmin() {
-            try {
-                const response = await fetch('/api/auth/setup-admin', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    alert('Admin criado com sucesso!\\nUsuário: ' + data.credentials.username + '\\nSenha: ' + data.credentials.password);
-                } else {
-                    alert(data.error || 'Erro ao criar admin');
-                }
-            } catch (error) {
-                alert('Erro ao criar admin');
-            }
-        }
     </script>
 </body>
 </html>`);
 });
 
-// Inicializar banco de dados na primeira requisição
-app.use('*', async (c, next) => {
-  try {
-    // Criar tabelas se não existirem
-    await c.env.DB.prepare(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        permission TEXT NOT NULL CHECK(permission IN ('view', 'edit', 'admin')),
-        is_admin BOOLEAN DEFAULT FALSE,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `).run();
-
-    await c.env.DB.prepare(`
-      CREATE TABLE IF NOT EXISTS suppliers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        product_type TEXT NOT NULL,
-        status TEXT NOT NULL CHECK(status IN ('active', 'settled')),
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `).run();
-
-    await c.env.DB.prepare(`
-      CREATE TABLE IF NOT EXISTS weekly_sheets (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        supplier_id INTEGER NOT NULL,
-        date DATE NOT NULL,
-        double_checked BOOLEAN DEFAULT FALSE,
-        stock_merchandise TEXT,
-        credit_text TEXT,
-        credit_total DECIMAL(10,2) DEFAULT 0,
-        envelope_money DECIMAL(10,2) DEFAULT 0,
-        folder_total DECIMAL(10,2) DEFAULT 0,
-        observations TEXT,
-        created_by INTEGER NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
-        FOREIGN KEY (created_by) REFERENCES users(id)
-      )
-    `).run();
-
-    await c.env.DB.prepare(`
-      CREATE TABLE IF NOT EXISTS fairs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date DATE NOT NULL,
-        location TEXT NOT NULL,
-        total_value DECIMAL(10,2) DEFAULT 0,
-        observations TEXT,
-        created_by INTEGER NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (created_by) REFERENCES users(id)
-      )
-    `).run();
-
-    await c.env.DB.prepare(`
-      CREATE TABLE IF NOT EXISTS fair_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        fair_id INTEGER NOT NULL,
-        quantity INTEGER NOT NULL,
-        category TEXT NOT NULL,
-        unit_value DECIMAL(10,2) NOT NULL,
-        total_value DECIMAL(10,2) NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (fair_id) REFERENCES fairs(id) ON DELETE CASCADE
-      )
-    `).run();
-
-    await c.env.DB.prepare(`
-      CREATE TABLE IF NOT EXISTS receipts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        buyer_name TEXT NOT NULL,
-        date DATE NOT NULL,
-        total_value DECIMAL(10,2) NOT NULL,
-        signature TEXT,
-        created_by INTEGER NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (created_by) REFERENCES users(id)
-      )
-    `).run();
-
-    await c.env.DB.prepare(`
-      CREATE TABLE IF NOT EXISTS receipt_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        receipt_id INTEGER NOT NULL,
-        product_name TEXT NOT NULL,
-        quantity INTEGER NOT NULL,
-        unit_value DECIMAL(10,2) NOT NULL,
-        total_value DECIMAL(10,2) NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (receipt_id) REFERENCES receipts(id) ON DELETE CASCADE
-      )
-    `).run();
-    
-  } catch (error) {
-    console.log('Tabelas já existem ou erro ao criar:', error);
-  }
-  
-  await next();
-});
 
 // Healthcheck
 app.get('/api/health', (c) => {

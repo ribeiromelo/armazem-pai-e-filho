@@ -48,7 +48,8 @@ receipts.get('/', async (c) => {
     return c.json(result.results || [])
   } catch (error: any) {
     console.error('Erro ao listar recibos:', error)
-    return c.json({ error: 'Erro ao listar recibos', details: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: 'Erro ao listar recibos', details: "Erro interno do servidor" }, 500)
   }
 })
 
@@ -83,7 +84,8 @@ receipts.get('/:id', async (c) => {
     })
   } catch (error: any) {
     console.error('Erro ao buscar recibo:', error)
-    return c.json({ error: 'Erro ao buscar recibo', details: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: 'Erro ao buscar recibo', details: "Erro interno do servidor" }, 500)
   }
 })
 
@@ -120,7 +122,8 @@ receipts.get('/stats/summary', async (c) => {
     })
   } catch (error: any) {
     console.error('Erro ao buscar estatísticas:', error)
-    return c.json({ error: 'Erro ao buscar estatísticas', details: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: 'Erro ao buscar estatísticas', details: "Erro interno do servidor" }, 500)
   }
 })
 
@@ -189,7 +192,8 @@ receipts.post('/', async (c) => {
     }, 201)
   } catch (error: any) {
     console.error('Erro ao criar recibo:', error)
-    return c.json({ error: 'Erro ao criar recibo', details: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: 'Erro ao criar recibo', details: "Erro interno do servidor" }, 500)
   }
 })
 
@@ -256,7 +260,8 @@ receipts.put('/:id', async (c) => {
     return c.json({ success: true })
   } catch (error: any) {
     console.error('Erro ao atualizar recibo:', error)
-    return c.json({ error: 'Erro ao atualizar recibo', details: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: 'Erro ao atualizar recibo', details: "Erro interno do servidor" }, 500)
   }
 })
 
@@ -281,7 +286,8 @@ receipts.delete('/:id', async (c) => {
     return c.json({ success: true })
   } catch (error: any) {
     console.error('Erro ao deletar recibo:', error)
-    return c.json({ error: 'Erro ao deletar recibo', details: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: 'Erro ao deletar recibo', details: "Erro interno do servidor" }, 500)
   }
 })
 

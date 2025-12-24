@@ -47,7 +47,8 @@ fairs.get('/', async (c) => {
     
     return c.json(results)
   } catch (error: any) {
-    return c.json({ error: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: "Erro interno do servidor" }, 500)
   }
 })
 
@@ -89,7 +90,8 @@ fairs.get('/:id', async (c) => {
       items
     })
   } catch (error: any) {
-    return c.json({ error: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: "Erro interno do servidor" }, 500)
   }
 })
 
@@ -153,7 +155,8 @@ fairs.post('/', async (c) => {
       total_value: totalValue
     }, 201)
   } catch (error: any) {
-    return c.json({ error: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: "Erro interno do servidor" }, 500)
   }
 })
 
@@ -212,14 +215,21 @@ fairs.put('/:id', async (c) => {
       total_value: totalValue
     })
   } catch (error: any) {
-    return c.json({ error: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: "Erro interno do servidor" }, 500)
   }
 })
 
 // Deletar feira
 fairs.delete('/:id', async (c) => {
   const { env } = c
+  const user = c.get('user') as any
   const id = c.req.param('id')
+  
+  // Apenas admin pode deletar
+  if (user.permission !== 'admin') {
+    return c.json({ error: 'Permissão negada' }, 403)
+  }
   
   try {
     // Deletar feira (itens serão deletados em cascata)
@@ -227,7 +237,8 @@ fairs.delete('/:id', async (c) => {
     
     return c.json({ message: 'Feira deletada com sucesso' })
   } catch (error: any) {
-    return c.json({ error: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: "Erro interno do servidor" }, 500)
   }
 })
 
@@ -272,7 +283,8 @@ fairs.get('/stats/summary', async (c) => {
       max_revenue: 0
     })
   } catch (error: any) {
-    return c.json({ error: error.message }, 500)
+    console.error("Erro:", error);
+    return c.json({ error: "Erro interno do servidor" }, 500)
   }
 })
 

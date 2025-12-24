@@ -85,4 +85,37 @@ authRoutes.post('/setup-admin', async (c) => {
   }
 });
 
+// Rota para resetar a senha do admin (apenas para migração)
+authRoutes.post('/reset-admin-password', async (c) => {
+  try {
+    // Buscar admin
+    const admin = await c.env.DB.prepare(
+      'SELECT id FROM users WHERE username = ? AND is_admin = TRUE'
+    ).bind('admin').first();
+    
+    if (!admin) {
+      return c.json({ error: 'Admin não encontrado' }, 404);
+    }
+    
+    // Criar nova senha com PBKDF2
+    const hashedPassword = await hashPassword('admin123');
+    
+    // Atualizar senha
+    await c.env.DB.prepare(
+      'UPDATE users SET password = ? WHERE id = ?'
+    ).bind(hashedPassword, admin.id).run();
+    
+    return c.json({ 
+      success: true, 
+      message: 'Senha do admin resetada com sucesso',
+      credentials: {
+        username: 'admin',
+        password: 'admin123'
+      }
+    });
+  } catch (error) {
+    return c.json({ error: 'Erro ao resetar senha do admin' }, 500);
+  }
+});
+
 export default authRoutes;

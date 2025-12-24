@@ -85,4 +85,42 @@ authRoutes.post('/setup-admin', async (c) => {
   }
 });
 
+// Rota para resetar senha do admin (APENAS PARA PRIMEIRO DEPLOY)
+// IMPORTANTE: Esta rota deve ser removida após o primeiro acesso bem-sucedido
+authRoutes.post('/emergency-reset-admin', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { new_password } = body;
+    
+    if (!new_password || new_password.length < 6) {
+      return c.json({ error: 'Nova senha deve ter no mínimo 6 caracteres' }, 400);
+    }
+    
+    // Buscar admin
+    const admin = await c.env.DB.prepare(
+      'SELECT id, username FROM users WHERE is_admin = TRUE LIMIT 1'
+    ).first();
+    
+    if (!admin) {
+      return c.json({ error: 'Nenhum admin encontrado no sistema' }, 404);
+    }
+    
+    // Criar nova senha com PBKDF2
+    const hashedPassword = await hashPassword(new_password);
+    
+    // Atualizar senha
+    await c.env.DB.prepare(
+      'UPDATE users SET password = ? WHERE id = ?'
+    ).bind(hashedPassword, admin.id).run();
+    
+    return c.json({ 
+      success: true, 
+      message: 'Senha resetada com sucesso. IMPORTANTE: Remova esta rota após fazer login.',
+      username: admin.username
+    });
+  } catch (error) {
+    return c.json({ error: 'Erro ao resetar senha' }, 500);
+  }
+});
+
 export default authRoutes;

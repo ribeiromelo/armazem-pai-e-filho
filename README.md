@@ -6,12 +6,14 @@
 - **Funcionalidades Principais**: Gestão de fornecedores, fichas semanais, feiras, recibos, controle financeiro e usuários
 
 ## URLs de Acesso
-- **Produção (Cloudflare Pages)**: [Será configurado após deploy]
-- **GitHub**: [Será configurado]
+- **Produção (Cloudflare Pages)**: https://c3a42197.armazem-pai-filho.pages.dev
+- **GitHub**: https://github.com/ribeiromelo/armazem-pai-e-filho
 - **Backup do Projeto**: https://www.genspark.ai/api/files/s/ojaFBq3o
 
 ## 🔑 Primeiro Acesso
-Após o deploy, acesse a rota `/api/auth/setup-admin` (POST) para criar o usuário administrador inicial. **Importante**: Altere as credenciais padrão imediatamente após o primeiro acesso.
+**Veja instruções detalhadas em**: [PRIMEIRO_ACESSO.md](./PRIMEIRO_ACESSO.md)
+
+Após o deploy, use a rota `/api/auth/emergency-reset-admin` (POST) para configurar a senha do administrador. **Importante**: Remova esta rota após o primeiro acesso bem-sucedido.
 
 ## Arquitetura de Dados
 - **Banco de Dados**: Cloudflare D1 (SQLite)

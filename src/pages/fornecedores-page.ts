@@ -285,6 +285,22 @@ export const fornecedoresPage = `<!DOCTYPE html>
         </div>
     </div>
 
+    <!-- Modal de Erro -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+                    <i class="fas fa-exclamation-circle text-yellow-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Não é Possível Excluir</h3>
+                <p class="text-sm text-gray-600 mb-6" id="errorMessage"></p>
+                <button onclick="closeErrorModal()" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Verificar autenticação
         const token = localStorage.getItem('token');
@@ -472,18 +488,42 @@ export const fornecedoresPage = `<!DOCTYPE html>
                     closeDeleteModal();
                     loadSuppliers();
                 } else {
-                    alert('Erro ao excluir fornecedor');
+                    const errorData = await response.json();
+                    closeDeleteModal();
+                    
+                    // Mostrar modal de erro customizado
+                    const errorMsg = document.getElementById('errorMessage');
+                    
+                    if (response.status === 400) {
+                        // Erro de validação (fornecedor com fichas)
+                        errorMsg.textContent = 'Este fornecedor possui fichas semanais associadas. Para excluí-lo, primeiro delete as fichas vinculadas a ele.';
+                    } else if (response.status === 403) {
+                        errorMsg.textContent = 'Você não tem permissão para excluir fornecedores.';
+                    } else {
+                        errorMsg.textContent = errorData.error || 'Erro ao excluir fornecedor. Tente novamente.';
+                    }
+                    
+                    document.getElementById('errorModal').classList.add('active');
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao excluir fornecedor');
+                closeDeleteModal();
+                
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = 'Erro de conexão. Verifique sua internet e tente novamente.';
+                document.getElementById('errorModal').classList.add('active');
             }
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.remove('active');
         }
 
         // Expor funções globalmente para onclick
         window.deleteSupplier = deleteSupplier;
         window.closeDeleteModal = closeDeleteModal;
         window.confirmDelete = confirmDelete;
+        window.closeErrorModal = closeErrorModal;
 
         // Toggle sidebar mobile
         function toggleSidebar() {

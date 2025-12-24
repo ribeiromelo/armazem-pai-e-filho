@@ -137,7 +137,8 @@ suppliersRoutes.delete('/:id', async (c) => {
     
     if (hasSheets && hasSheets.count > 0) {
       return c.json({ 
-        error: 'Não é possível excluir fornecedor com fichas associadas' 
+        error: `Não é possível excluir este fornecedor pois existem ${hasSheets.count} ficha(s) semanal(is) vinculada(s) a ele. Delete as fichas primeiro.`,
+        count: hasSheets.count
       }, 400);
     }
     

@@ -6,17 +6,12 @@
 - **Funcionalidades Principais**: Gestão de fornecedores, fichas semanais, feiras, recibos, controle financeiro e usuários
 
 ## URLs de Acesso
-- **Deploy Hospedado (GenSpark)**: https://67d687ae-6225-47df-bc8e-0cbdb7d5fe34.vip.gensparksite.com
-- **Desenvolvimento Local**: https://3000-is5kvpf9vmq0ywkrakwpd-0e616f0a.sandbox.novita.ai
-- **API Health Check**: /api/health
+- **Produção (Cloudflare Pages)**: [Será configurado após deploy]
 - **GitHub**: [Será configurado]
 - **Backup do Projeto**: https://www.genspark.ai/api/files/s/ojaFBq3o
 
-## 🔑 Credenciais de Acesso
-- **Username**: `admin`
-- **Senha**: `admin123`
-
-**IMPORTANTE**: No primeiro login após deploy, o sistema migra automaticamente senhas antigas (SHA-256) para o novo formato seguro (PBKDF2).
+## 🔑 Primeiro Acesso
+Após o deploy, acesse a rota `/api/auth/setup-admin` (POST) para criar o usuário administrador inicial. **Importante**: Altere as credenciais padrão imediatamente após o primeiro acesso.
 
 ## Arquitetura de Dados
 - **Banco de Dados**: Cloudflare D1 (SQLite)
@@ -153,39 +148,55 @@ pm2 delete armazem
 pm2 logs armazem --nostream
 ```
 
-## 🚀 Deploy no GenSpark
+## 🚀 Deploy no Cloudflare Pages
 
-### Como Atualizar o Deploy Hospedado
+### Pré-requisitos
+- Conta no Cloudflare
+- Repositório GitHub configurado
+- Wrangler CLI instalado
 
-O sistema está hospedado no GenSpark em:
-**https://67d687ae-6225-47df-bc8e-0cbdb7d5fe34.vip.gensparksite.com**
+### Passos para Deploy
 
-**Para atualizar o deploy:**
-
-1. **No GitHub**: Faça push das suas alterações
+1. **Push para GitHub**
    ```bash
-   git add .
-   git commit -m "Sua mensagem"
    git push origin main
    ```
 
-2. **No GenSpark**: 
-   - Vá até o projeto no GenSpark
-   - O sistema detectará as mudanças no repositório
-   - O deploy será atualizado automaticamente
+2. **Criar banco D1 de produção**
+   ```bash
+   npx wrangler d1 create armazem-production
+   # Copiar o database_id gerado
+   ```
 
-3. **Credenciais após deploy**:
-   - Username: `admin`
-   - Senha: `admin123`
-   - O sistema migra automaticamente senhas antigas para o formato seguro
+3. **Aplicar migrações no banco de produção**
+   ```bash
+   npx wrangler d1 migrations apply armazem-production --remote
+   ```
 
-### Migração Automática de Senhas
+4. **Criar projeto no Cloudflare Pages**
+   ```bash
+   npx wrangler pages project create armazem-pai-filho --production-branch main
+   ```
 
-O sistema implementa **migração automática** de senhas:
-- **Formato antigo**: SHA-256 simples (menos seguro)
-- **Formato novo**: PBKDF2 com 100.000 iterações + salt aleatório (muito seguro)
-- **Migração**: Acontece automaticamente no primeiro login após o deploy
-- **Transparente**: Usuário não percebe, apenas faz login normalmente
+5. **Deploy para produção**
+   ```bash
+   npm run build
+   npx wrangler pages deploy dist --project-name armazem-pai-filho
+   ```
+
+6. **Criar usuário administrador inicial**
+   - Acesse: `https://armazem-pai-filho.pages.dev/api/auth/setup-admin` (POST)
+   - O sistema criará o primeiro admin
+   - **IMPORTANTE**: Altere a senha padrão imediatamente após o primeiro acesso
+
+### Segurança Implementada
+
+- ✅ **PBKDF2**: Hashing de senhas com 100.000 iterações + salt aleatório
+- ✅ **HMAC-SHA256**: Assinatura JWT usando Web Crypto API
+- ✅ **Validação de entrada**: Schema validation com Zod
+- ✅ **CORS restritivo**: Whitelist de domínios permitidos
+- ✅ **Foreign Key Constraints**: Integridade referencial no banco
+- ✅ **Prepared Statements**: Proteção contra SQL Injection
 
 ## Próximos Passos Recomendados
 1. ~~Implementar módulo de Fichas Semanais com extração automática de valores~~ ✅

@@ -41,52 +41,39 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
   try {
-    // Verificar se é o formato novo (PBKDF2 com salt) ou antigo (SHA-256 simples)
-    if (storedHash.includes(':')) {
-      // Formato novo: PBKDF2 com salt
-      const [saltHex, hashHex] = storedHash.split(':');
-      
-      // Converter salt de hex para bytes
-      const salt = new Uint8Array(saltHex.match(/.{2}/g)!.map(byte => parseInt(byte, 16)));
-      
-      const encoder = new TextEncoder();
-      const passwordData = encoder.encode(password);
-      
-      // Importar senha como chave
-      const keyMaterial = await crypto.subtle.importKey(
-        'raw',
-        passwordData,
-        'PBKDF2',
-        false,
-        ['deriveBits']
-      );
-      
-      // Derivar hash com o mesmo salt
-      const derivedBits = await crypto.subtle.deriveBits(
-        {
-          name: 'PBKDF2',
-          salt: salt,
-          iterations: 100000,
-          hash: 'SHA-256'
-        },
-        keyMaterial,
-        256
-      );
-      
-      const hashArray = Array.from(new Uint8Array(derivedBits));
-      const computedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      
-      return computedHash === hashHex;
-    } else {
-      // Formato antigo: SHA-256 simples (fallback para compatibilidade)
-      const encoder = new TextEncoder();
-      const data = encoder.encode(password);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const computedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      
-      return computedHash === storedHash;
-    }
+    const [saltHex, hashHex] = storedHash.split(':');
+    
+    // Converter salt de hex para bytes
+    const salt = new Uint8Array(saltHex.match(/.{2}/g)!.map(byte => parseInt(byte, 16)));
+    
+    const encoder = new TextEncoder();
+    const passwordData = encoder.encode(password);
+    
+    // Importar senha como chave
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      passwordData,
+      'PBKDF2',
+      false,
+      ['deriveBits']
+    );
+    
+    // Derivar hash com o mesmo salt
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      256
+    );
+    
+    const hashArray = Array.from(new Uint8Array(derivedBits));
+    const computedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    return computedHash === hashHex;
   } catch (error) {
     return false;
   }

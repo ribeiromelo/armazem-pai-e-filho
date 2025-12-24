@@ -21,18 +21,25 @@ import { usuariosPage } from './pages/usuarios-page';
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// Configurar CORS - Restritivo para produção
+// Configurar CORS - Ambiente-aware
 app.use('/api/*', cors({
   origin: (origin) => {
-    // Em desenvolvimento, permitir localhost
-    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return origin || '*';
+    // Permitir requisições do mesmo domínio (pages servidas pelo mesmo worker)
+    if (!origin) {
+      return '*';
     }
-    // Em produção, permitir apenas domínios específicos
+    
+    // Lista de domínios permitidos (adicione seu domínio customizado aqui)
     const allowedDomains = [
-      'https://armazem-pai-e-filho.pages.dev',
-      'https://your-custom-domain.com'
+      'https://armazem-pai-filho.pages.dev',
+      // Adicione seu domínio customizado aqui quando configurar
     ];
+    
+    // Permitir qualquer subdomínio do Cloudflare Pages
+    if (origin.includes('.pages.dev')) {
+      return origin;
+    }
+    
     return allowedDomains.includes(origin) ? origin : '';
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

@@ -33,21 +33,6 @@ authRoutes.post('/login', async (c) => {
       return c.json({ error: 'Usuário ou senha inválidos' }, 401);
     }
     
-    // Migração automática: Se a senha está no formato antigo (SHA-256), atualizar para PBKDF2
-    const isOldFormat = !(user.password as string).includes(':');
-    if (isOldFormat) {
-      try {
-        const newHashedPassword = await hashPassword(password);
-        await c.env.DB.prepare(
-          'UPDATE users SET password = ? WHERE id = ?'
-        ).bind(newHashedPassword, user.id).run();
-        console.log(`Senha do usuário ${username} migrada para PBKDF2 automaticamente`);
-      } catch (error) {
-        console.error('Erro ao migrar senha:', error);
-        // Continua o login mesmo se a migração falhar
-      }
-    }
-    
     // Gerar token
     const token = await generateToken(user as any);
     
@@ -97,39 +82,6 @@ authRoutes.post('/setup-admin', async (c) => {
     });
   } catch (error) {
     return c.json({ error: 'Erro ao criar admin' }, 500);
-  }
-});
-
-// Rota para resetar a senha do admin (apenas para migração)
-authRoutes.post('/reset-admin-password', async (c) => {
-  try {
-    // Buscar admin
-    const admin = await c.env.DB.prepare(
-      'SELECT id FROM users WHERE username = ? AND is_admin = TRUE'
-    ).bind('admin').first();
-    
-    if (!admin) {
-      return c.json({ error: 'Admin não encontrado' }, 404);
-    }
-    
-    // Criar nova senha com PBKDF2
-    const hashedPassword = await hashPassword('admin123');
-    
-    // Atualizar senha
-    await c.env.DB.prepare(
-      'UPDATE users SET password = ? WHERE id = ?'
-    ).bind(hashedPassword, admin.id).run();
-    
-    return c.json({ 
-      success: true, 
-      message: 'Senha do admin resetada com sucesso',
-      credentials: {
-        username: 'admin',
-        password: 'admin123'
-      }
-    });
-  } catch (error) {
-    return c.json({ error: 'Erro ao resetar senha do admin' }, 500);
   }
 });
 

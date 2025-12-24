@@ -6,11 +6,17 @@
 - **Funcionalidades Principais**: Gestão de fornecedores, fichas semanais, feiras, recibos, controle financeiro e usuários
 
 ## URLs de Acesso
-- **Desenvolvimento**: https://3000-is5kvpf9vmq0ywkrakwpd-0e616f0a.sandbox.novita.ai
-- **API Health Check**: https://3000-is5kvpf9vmq0ywkrakwpd-0e616f0a.sandbox.novita.ai/api/health
-- **Módulo de Feiras**: https://3000-is5kvpf9vmq0ywkrakwpd-0e616f0a.sandbox.novita.ai/feiras
+- **Deploy Hospedado (GenSpark)**: https://67d687ae-6225-47df-bc8e-0cbdb7d5fe34.vip.gensparksite.com
+- **Desenvolvimento Local**: https://3000-is5kvpf9vmq0ywkrakwpd-0e616f0a.sandbox.novita.ai
+- **API Health Check**: /api/health
 - **GitHub**: [Será configurado]
 - **Backup do Projeto**: https://www.genspark.ai/api/files/s/ojaFBq3o
+
+## 🔑 Credenciais de Acesso
+- **Username**: `admin`
+- **Senha**: `admin123`
+
+**IMPORTANTE**: No primeiro login após deploy, o sistema migra automaticamente senhas antigas (SHA-256) para o novo formato seguro (PBKDF2).
 
 ## Arquitetura de Dados
 - **Banco de Dados**: Cloudflare D1 (SQLite)
@@ -146,6 +152,40 @@ pm2 delete armazem
 # Ver logs
 pm2 logs armazem --nostream
 ```
+
+## 🚀 Deploy no GenSpark
+
+### Como Atualizar o Deploy Hospedado
+
+O sistema está hospedado no GenSpark em:
+**https://67d687ae-6225-47df-bc8e-0cbdb7d5fe34.vip.gensparksite.com**
+
+**Para atualizar o deploy:**
+
+1. **No GitHub**: Faça push das suas alterações
+   ```bash
+   git add .
+   git commit -m "Sua mensagem"
+   git push origin main
+   ```
+
+2. **No GenSpark**: 
+   - Vá até o projeto no GenSpark
+   - O sistema detectará as mudanças no repositório
+   - O deploy será atualizado automaticamente
+
+3. **Credenciais após deploy**:
+   - Username: `admin`
+   - Senha: `admin123`
+   - O sistema migra automaticamente senhas antigas para o formato seguro
+
+### Migração Automática de Senhas
+
+O sistema implementa **migração automática** de senhas:
+- **Formato antigo**: SHA-256 simples (menos seguro)
+- **Formato novo**: PBKDF2 com 100.000 iterações + salt aleatório (muito seguro)
+- **Migração**: Acontece automaticamente no primeiro login após o deploy
+- **Transparente**: Usuário não percebe, apenas faz login normalmente
 
 ## Próximos Passos Recomendados
 1. ~~Implementar módulo de Fichas Semanais com extração automática de valores~~ ✅

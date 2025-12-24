@@ -33,6 +33,21 @@ authRoutes.post('/login', async (c) => {
       return c.json({ error: 'Usuário ou senha inválidos' }, 401);
     }
     
+    // Migração automática: Se a senha está no formato antigo (SHA-256), atualizar para PBKDF2
+    const isOldFormat = !(user.password as string).includes(':');
+    if (isOldFormat) {
+      try {
+        const newHashedPassword = await hashPassword(password);
+        await c.env.DB.prepare(
+          'UPDATE users SET password = ? WHERE id = ?'
+        ).bind(newHashedPassword, user.id).run();
+        console.log(`Senha do usuário ${username} migrada para PBKDF2 automaticamente`);
+      } catch (error) {
+        console.error('Erro ao migrar senha:', error);
+        // Continua o login mesmo se a migração falhar
+      }
+    }
+    
     // Gerar token
     const token = await generateToken(user as any);
     

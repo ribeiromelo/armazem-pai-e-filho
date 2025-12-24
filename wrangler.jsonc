@@ -11,7 +11,7 @@
     {
       "binding": "DB",
       "database_name": "armazem-production",
-      "database_id": "your-database-id" // Será substituído após criar no Cloudflare
+      "database_id": "8e2cc7b3-257e-445a-ab03-cffd5ddcc21f"
     }
   ]
 }

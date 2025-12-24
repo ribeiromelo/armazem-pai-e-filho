@@ -42,6 +42,45 @@ export const fornecedoresPage = `<!DOCTYPE html>
                 display: block;
             }
         }
+        
+        /* Modal Customizado */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.2s;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -225,6 +264,27 @@ export const fornecedoresPage = `<!DOCTYPE html>
         </div>
     </div>
 
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Excluir Fornecedor?</h3>
+                <p class="text-sm text-gray-500 mb-6">Esta ação não pode ser desfeita. Deseja realmente excluir este fornecedor?</p>
+                <div class="flex gap-3">
+                    <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    <button onclick="confirmDelete()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        Excluir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Verificar autenticação
         const token = localStorage.getItem('token');
@@ -387,7 +447,18 @@ export const fornecedoresPage = `<!DOCTYPE html>
         });
 
         async function deleteSupplier(id) {
-            if (!confirm('Tem certeza que deseja excluir este fornecedor?')) return;
+            window.deleteId = id;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            window.deleteId = null;
+        }
+
+        async function confirmDelete() {
+            const id = window.deleteId;
+            if (!id) return;
             
             try {
                 const response = await fetch(\`/api/suppliers/\${id}\`, {
@@ -398,12 +469,21 @@ export const fornecedoresPage = `<!DOCTYPE html>
                 });
                 
                 if (response.ok) {
+                    closeDeleteModal();
                     loadSuppliers();
+                } else {
+                    alert('Erro ao excluir fornecedor');
                 }
             } catch (error) {
+                console.error('Erro:', error);
                 alert('Erro ao excluir fornecedor');
             }
         }
+
+        // Expor funções globalmente para onclick
+        window.deleteSupplier = deleteSupplier;
+        window.closeDeleteModal = closeDeleteModal;
+        window.confirmDelete = confirmDelete;
 
         // Toggle sidebar mobile
         function toggleSidebar() {

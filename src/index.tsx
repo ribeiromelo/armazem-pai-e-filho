@@ -142,7 +142,7 @@ app.get('/', (c) => {
 
         <!-- Footer -->
         <p class="text-center text-gray-500 text-sm mt-6">
-            © 2024 Armazém Pai e Filho. Todos os direitos reservados.
+            © 2025 Armazém Pai e Filho. Todos os direitos reservados.
         </p>
     </div>
 

@@ -191,20 +191,6 @@ sheetsRoutes.post('/', async (c) => {
     // Calcular total da pasta (estoque + fiado + dinheiro + ajustes)
     const folderTotal = stockTotal + creditTotal + (data.envelope_money || 0) + observationsAdjustment;
     
-    // Primeiro, criar tabela de itens se não existir
-    await c.env.DB.prepare(`
-      CREATE TABLE IF NOT EXISTS sheet_stock_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sheet_id INTEGER NOT NULL,
-        quantity INTEGER NOT NULL,
-        item_name TEXT NOT NULL,
-        unit_value DECIMAL(10,2) NOT NULL,
-        total_value DECIMAL(10,2) NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (sheet_id) REFERENCES weekly_sheets(id) ON DELETE CASCADE
-      )
-    `).run();
-    
     // Inserir a ficha
     const result = await c.env.DB.prepare(`
       INSERT INTO weekly_sheets (
@@ -230,11 +216,11 @@ sheetsRoutes.post('/', async (c) => {
     
     const sheetId = result.meta.last_row_id;
     
-    // Inserir itens de estoque
+    // Inserir itens de estoque (otimizado com batch)
     if (data.stock_items && data.stock_items.length > 0) {
-      for (const item of data.stock_items) {
+      const batch = data.stock_items.map(item => {
         const itemTotal = item.quantity * item.unit_value;
-        await c.env.DB.prepare(`
+        return c.env.DB.prepare(`
           INSERT INTO sheet_stock_items (
             sheet_id, quantity, item_name, unit_value, total_value
           )
@@ -245,8 +231,10 @@ sheetsRoutes.post('/', async (c) => {
           item.item_name,
           item.unit_value,
           itemTotal
-        ).run();
-      }
+        );
+      });
+      
+      await c.env.DB.batch(batch);
     }
     
     return c.json({
@@ -335,15 +323,15 @@ sheetsRoutes.put('/:id', async (c) => {
       id
     ).run();
     
-    // Deletar itens antigos e inserir novos
+    // Deletar itens antigos e inserir novos (otimizado com batch)
     await c.env.DB.prepare(
       'DELETE FROM sheet_stock_items WHERE sheet_id = ?'
     ).bind(id).run();
     
     if (data.stock_items && data.stock_items.length > 0) {
-      for (const item of data.stock_items) {
+      const batch = data.stock_items.map(item => {
         const itemTotal = item.quantity * item.unit_value;
-        await c.env.DB.prepare(`
+        return c.env.DB.prepare(`
           INSERT INTO sheet_stock_items (
             sheet_id, quantity, item_name, unit_value, total_value
           )
@@ -354,8 +342,10 @@ sheetsRoutes.put('/:id', async (c) => {
           item.item_name,
           item.unit_value,
           itemTotal
-        ).run();
-      }
+        );
+      });
+      
+      await c.env.DB.batch(batch);
     }
     
     return c.json({ 

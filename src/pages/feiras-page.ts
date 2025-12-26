@@ -523,14 +523,14 @@ export const feirasPage = `<!DOCTYPE html>
         }
 
         // Função de logout
-        function logout() {
+        window.logout = function() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/';
         }
 
         // Função para mostrar notificações toast
-        function showToast(message, type = 'success') {
+        window.showToast = function(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = \`toast \${type}\`;
             
@@ -565,7 +565,7 @@ export const feirasPage = `<!DOCTYPE html>
         let fairItemCounter = 0;
 
         // Calcular total em tempo real
-        function calculateTotal() {
+        window.calculateTotal = function() {
             const items = document.querySelectorAll('.fair-item');
             let total = 0;
             
@@ -582,7 +582,7 @@ export const feirasPage = `<!DOCTYPE html>
         }
 
         // Adicionar item à feira
-        function addFairItem() {
+        window.addFairItem = function() {
             const container = document.getElementById('fairItemsContainer');
             const itemId = fairItemCounter++;
             
@@ -622,7 +622,7 @@ export const feirasPage = `<!DOCTYPE html>
         }
 
         // Remover item da feira
-        function removeFairItem(itemId) {
+        window.removeFairItem = function(itemId) {
             const item = document.querySelector(\`[data-item-id="\${itemId}"]\`);
             if (item) {
                 item.remove();
@@ -631,7 +631,7 @@ export const feirasPage = `<!DOCTYPE html>
         }
 
         // Abrir modal
-        function openModal() {
+        window.openModal = function() {
             document.getElementById('modalTitle').textContent = 'Nova Feira';
             document.getElementById('fairForm').reset();
             document.getElementById('fairId').value = '';
@@ -649,7 +649,7 @@ export const feirasPage = `<!DOCTYPE html>
         }
 
         // Fechar modal
-        function closeModal() {
+        window.closeModal = function() {
             document.getElementById('fairModal').classList.add('hidden');
         }
 
@@ -669,14 +669,14 @@ export const feirasPage = `<!DOCTYPE html>
         }
 
         // Limpar filtros
-        function clearFilters() {
+        window.clearFilters = function() {
             document.getElementById('monthFilter').value = '';
             document.getElementById('yearFilter').value = '';
             loadFairs();
         }
 
         // Carregar feiras
-        async function loadFairs() {
+        window.loadFairs = async function() {
             try {
                 const month = document.getElementById('monthFilter').value;
                 const year = document.getElementById('yearFilter').value;
@@ -731,7 +731,7 @@ export const feirasPage = `<!DOCTYPE html>
         }
 
         // Renderizar feiras
-        function renderFairs() {
+        window.renderFairs = function() {
             const html = fairs.map(fair => {
                 // Formatar data no padrão brasileiro com horário de Fortaleza
                 const date = new Date(fair.date + 'T00:00:00-03:00');
@@ -806,7 +806,7 @@ export const feirasPage = `<!DOCTYPE html>
         }
 
         // Visualizar feira
-        function viewFair(id) {
+        window.viewFair = function(id) {
             const fair = fairs.find(f => f.id === id);
             if (!fair) return;
             
@@ -890,12 +890,12 @@ export const feirasPage = `<!DOCTYPE html>
             });
         }
 
-        function closeViewModal() {
+        window.closeViewModal = function() {
             document.getElementById('viewModal').classList.remove('active');
         }
 
         // Editar feira
-        function editFair(id) {
+        window.editFair = function(id) {
             fetch(\`/api/fairs/\${id}\`, {
                 headers: { 'Authorization': \`Bearer \${token}\` }
             })
@@ -925,7 +925,7 @@ export const feirasPage = `<!DOCTYPE html>
         }
 
         // Deletar feira
-        async function deleteFair(id) {
+        window.deleteFair = async function(id) {
             if (!confirm('Tem certeza que deseja deletar esta feira?')) return;
             
             try {
@@ -1176,7 +1176,7 @@ export const feirasPage = `<!DOCTYPE html>
         });
 
         // Toggle sidebar mobile
-        function toggleSidebar() {
+        window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
             sidebar.classList.toggle('active');

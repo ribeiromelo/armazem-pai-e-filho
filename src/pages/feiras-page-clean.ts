@@ -1,4 +1,4 @@
-export const feirasPage = `<!DOCTYPE html>
+export const feirasPage = \`<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -53,4 +53,4 @@ export const feirasPage = `<!DOCTYPE html>
     <script src="/static/feiras-complete.js"></script>
 </body>
 </html>
-`;
+\`;

@@ -500,7 +500,7 @@ export const feirasPage = `
 
 
     <!-- JavaScript externo -->
-    <script src="/static/feiras.js"></script>
+    <script src="/static/feiras.js" defer></script>
 </body>
 </html>
 `;

@@ -294,80 +294,78 @@ window.toggleSidebar = function() {
     if (sidebar) sidebar.classList.toggle('hidden');
 };
 
-// Event listener para o formulário (quando o DOM estiver pronto)
-document.addEventListener('DOMContentLoaded', () => {
-    const fairForm = document.getElementById('fairForm');
-    if (fairForm) {
-        fairForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+// Event listener para o formulário
+const fairForm = document.getElementById('fairForm');
+if (fairForm) {
+    fairForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const fairDate = document.getElementById('fairDate')?.value;
+        const location = document.getElementById('location')?.value;
+        const observations = document.getElementById('observations')?.value || '';
+        
+        const items = [];
+        document.querySelectorAll('.fair-item').forEach(item => {
+            const quantity = parseFloat(item.querySelector('.item-quantity')?.value);
+            const category = item.querySelector('.item-category')?.value;
+            const unitValue = parseFloat(item.querySelector('.item-unit-value')?.value);
             
-            const fairDate = document.getElementById('fairDate')?.value;
-            const location = document.getElementById('location')?.value;
-            const observations = document.getElementById('observations')?.value || '';
-            
-            const items = [];
-            document.querySelectorAll('.fair-item').forEach(item => {
-                const quantity = parseFloat(item.querySelector('.item-quantity')?.value);
-                const category = item.querySelector('.item-category')?.value;
-                const unitValue = parseFloat(item.querySelector('.item-unit-value')?.value);
+            if (quantity && category && unitValue) {
+                const itemData = {
+                    quantity: quantity,
+                    category: category,
+                    unit_value: unitValue
+                };
                 
-                if (quantity && category && unitValue) {
-                    const itemData = {
-                        quantity: quantity,
-                        category: category,
-                        unit_value: unitValue
-                    };
-                    
-                    const itemId = item.querySelector('.item-id');
-                    if (itemId) {
-                        itemData.id = parseInt(itemId.value);
-                    }
-                    
-                    items.push(itemData);
-                }
-            });
-            
-            if (items.length === 0) {
-                showToast('Adicione pelo menos um item à feira', 'error');
-                return;
-            }
-            
-            const data = {
-                date: fairDate,
-                location: location,
-                observations: observations,
-                items: items
-            };
-            
-            try {
-                const method = currentFairId ? 'PUT' : 'POST';
-                const url = currentFairId ? `/api/fairs/${currentFairId}` : '/api/fairs';
-                
-                const response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Erro ao salvar feira');
+                const itemId = item.querySelector('.item-id');
+                if (itemId) {
+                    itemData.id = parseInt(itemId.value);
                 }
                 
-                showToast(currentFairId ? 'Feira atualizada com sucesso' : 'Feira criada com sucesso');
-                closeModal();
-                loadFairs();
-            } catch (error) {
-                console.error('Erro:', error);
-                showToast(error.message, 'error');
+                items.push(itemData);
             }
         });
-    }
-    
-    // Carregar feiras ao iniciar
-    console.log('Iniciando loadFairs...');
-    loadFairs();
-});
+        
+        if (items.length === 0) {
+            showToast('Adicione pelo menos um item à feira', 'error');
+            return;
+        }
+        
+        const data = {
+            date: fairDate,
+            location: location,
+            observations: observations,
+            items: items
+        };
+        
+        try {
+            const method = currentFairId ? 'PUT' : 'POST';
+            const url = currentFairId ? `/api/fairs/${currentFairId}` : '/api/fairs';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao salvar feira');
+            }
+            
+            showToast(currentFairId ? 'Feira atualizada com sucesso' : 'Feira criada com sucesso');
+            closeModal();
+            loadFairs();
+        } catch (error) {
+            console.error('Erro:', error);
+            showToast(error.message, 'error');
+        }
+    });
+}
+
+// Carregar feiras ao iniciar (script com defer já espera DOM estar pronto)
+console.log('Iniciando loadFairs...');
+loadFairs();

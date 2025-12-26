@@ -52,44 +52,4 @@ authRoutes.post('/login', async (c) => {
   }
 });
 
-// TEMPORÁRIO: Rota de reset de senha do admin (REMOVER APÓS USO!)
-authRoutes.post('/reset-admin-temp', async (c) => {
-  try {
-    // Verificar se admin existe
-    const admin = await c.env.DB.prepare(
-      'SELECT id FROM users WHERE username = ?'
-    ).bind('admin').first();
-    
-    if (!admin) {
-      // Se não existir, criar
-      const hashedPassword = await hashPassword('admin123');
-      await c.env.DB.prepare(`
-        INSERT INTO users (name, username, password, permission, is_admin)
-        VALUES (?, ?, ?, ?, ?)
-      `).bind('Administrador', 'admin', hashedPassword, 'admin', 1).run();
-      
-      return c.json({
-        success: true,
-        message: 'Admin criado com sucesso',
-        credentials: { username: 'admin', password: 'admin123' }
-      });
-    }
-    
-    // Se já existir, apenas atualizar a senha
-    const hashedPassword = await hashPassword('admin123');
-    await c.env.DB.prepare(
-      'UPDATE users SET password = ? WHERE username = ?'
-    ).bind(hashedPassword, 'admin').run();
-    
-    return c.json({
-      success: true,
-      message: 'Senha do admin resetada com sucesso',
-      credentials: { username: 'admin', password: 'admin123' }
-    });
-  } catch (error: any) {
-    console.error("Erro:", error);
-    return c.json({ error: "Erro ao resetar admin" }, 500);
-  }
-});
-
 export default authRoutes;

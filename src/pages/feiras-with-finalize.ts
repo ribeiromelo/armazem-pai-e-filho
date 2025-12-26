@@ -532,7 +532,7 @@ export const feirasPage = `<!DOCTYPE html>
         // Função para mostrar notificações toast
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
-            toast.className = 'toast \' + (type);
+            toast.className = \`toast \${type}\`;
             
             const icon = type === 'success' ? 'fa-check-circle' : 
                         type === 'error' ? 'fa-exclamation-circle' : 
@@ -574,11 +574,11 @@ export const feirasPage = `<!DOCTYPE html>
                 const unitValue = parseFloat(item.querySelector('.item-unit-value').value) || 0;
                 const itemTotal = quantity * unitValue;
                 
-                item.querySelector('.item-total').textContent = 'R$ \' + (itemTotal.toFixed(2).replace('.', ','));
+                item.querySelector('.item-total').textContent = \`R$ \${itemTotal.toFixed(2).replace('.', ',')}\`;
                 total += itemTotal;
             });
             
-            document.getElementById('previewTotal').textContent = 'R$ \' + (total.toFixed(2).replace('.', ','));
+            document.getElementById('previewTotal').textContent = \`R$ \${total.toFixed(2).replace('.', ',')}\`;
         }
 
         // Adicionar item à feira
@@ -623,7 +623,7 @@ export const feirasPage = `<!DOCTYPE html>
 
         // Remover item da feira
         function removeFairItem(itemId) {
-            const item = document.querySelector('[data-item-id="\' + (itemId) + '"]');
+            const item = document.querySelector(\`[data-item-id="\${itemId}"]\`);
             if (item) {
                 item.remove();
                 calculateTotal();
@@ -682,12 +682,12 @@ export const feirasPage = `<!DOCTYPE html>
                 const year = document.getElementById('yearFilter').value;
                 
                 let url = '/api/fairs?';
-                if (month) url += 'month=\' + (month) + '&';
-                if (year) url += 'year=\' + (year) + '&';
+                if (month) url += \`month=\${month}&\`;
+                if (year) url += \`year=\${year}&\`;
                 
                 const response = await fetch(url, {
                     headers: {
-                        'Authorization': 'Bearer \' + (token)
+                        'Authorization': \`Bearer \${token}\`
                     }
                 });
                 
@@ -708,12 +708,12 @@ export const feirasPage = `<!DOCTYPE html>
                 const year = document.getElementById('yearFilter').value;
                 
                 let url = '/api/fairs/stats/summary?';
-                if (month) url += 'month=\' + (month) + '&';
-                if (year) url += 'year=\' + (year) + '&';
+                if (month) url += \`month=\${month}&\`;
+                if (year) url += \`year=\${year}&\`;
                 
                 const response = await fetch(url, {
                     headers: {
-                        'Authorization': 'Bearer \' + (token)
+                        'Authorization': \`Bearer \${token}\`
                     }
                 });
                 
@@ -721,9 +721,9 @@ export const feirasPage = `<!DOCTYPE html>
                     const stats = await response.json();
                     
                     document.getElementById('totalFairs').textContent = stats.total_fairs;
-                    document.getElementById('totalRevenue').textContent = 'R$ \' + (stats.total_revenue.toFixed(2).replace('.', ','));
-                    document.getElementById('avgRevenue').textContent = 'R$ \' + (stats.average_revenue.toFixed(2).replace('.', ','));
-                    document.getElementById('maxRevenue').textContent = 'R$ \' + (stats.max_revenue.toFixed(2).replace('.', ','));
+                    document.getElementById('totalRevenue').textContent = \`R$ \${stats.total_revenue.toFixed(2).replace('.', ',')}\`;
+                    document.getElementById('avgRevenue').textContent = \`R$ \${stats.average_revenue.toFixed(2).replace('.', ',')}\`;
+                    document.getElementById('maxRevenue').textContent = \`R$ \${stats.max_revenue.toFixed(2).replace('.', ',')}\`;
                 }
             } catch (error) {
                 console.error('Erro ao carregar estatísticas:', error);
@@ -811,8 +811,8 @@ export const feirasPage = `<!DOCTYPE html>
             if (!fair) return;
             
             // Buscar detalhes completos da feira
-            fetch('/api/fairs/\' + (id), {
-                headers: { 'Authorization': 'Bearer \' + (token) }
+            fetch(\`/api/fairs/\${id}\`, {
+                headers: { 'Authorization': \`Bearer \${token}\` }
             })
             .then(r => r.json())
             .then(fairDetails => {
@@ -896,8 +896,8 @@ export const feirasPage = `<!DOCTYPE html>
 
         // Editar feira
         function editFair(id) {
-            fetch('/api/fairs/\' + (id), {
-                headers: { 'Authorization': 'Bearer \' + (token) }
+            fetch(\`/api/fairs/\${id}\`, {
+                headers: { 'Authorization': \`Bearer \${token}\` }
             })
             .then(r => r.json())
             .then(fair => {
@@ -929,10 +929,10 @@ export const feirasPage = `<!DOCTYPE html>
             if (!confirm('Tem certeza que deseja deletar esta feira?')) return;
             
             try {
-                const response = await fetch('/api/fairs/\' + (id), {
+                const response = await fetch(\`/api/fairs/\${id}\`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': 'Bearer \' + (token)
+                        'Authorization': \`Bearer \${token}\`
                     }
                 });
                 
@@ -952,8 +952,8 @@ export const feirasPage = `<!DOCTYPE html>
         window.finalizeFair = async function(id) {
             try {
                 // Buscar detalhes da feira
-                const response = await fetch('/api/fairs/\' + (id), {
-                    headers: { 'Authorization': 'Bearer \' + (token) }
+                const response = await fetch(\`/api/fairs/\${id}\`, {
+                    headers: { 'Authorization': \`Bearer \${token}\` }
                 });
                 
                 if (!response.ok) {
@@ -1008,7 +1008,7 @@ export const feirasPage = `<!DOCTYPE html>
 
         // Calcular valores de uma linha
         window.calculateFinalizeRow = function(index) {
-            const row = document.querySelector('[data-index="\' + (index) + '"]').closest('tr');
+            const row = document.querySelector(\`[data-index="\${index}"]\`).closest('tr');
             const quantityTaken = parseInt(row.cells[1].textContent);
             const salePrice = parseFloat(row.cells[2].textContent.replace('R$ ', '').replace(',', '.'));
             
@@ -1027,14 +1027,14 @@ export const feirasPage = `<!DOCTYPE html>
             const profit = revenue - cost;
             
             // Atualizar valores na linha
-            document.querySelector('.quantity-sold-\' + (index)).textContent = quantitySold;
-            document.querySelector('.item-revenue-\' + (index)).textContent = \`R$ \${revenue.toFixed(2).replace('.', ',')}\`;
-            document.querySelector('.item-cost-\' + (index)).textContent = \`R$ \${cost.toFixed(2).replace('.', ',')}\`;
+            document.querySelector(\`.quantity-sold-\${index}\`).textContent = quantitySold;
+            document.querySelector(\`.item-revenue-\${index}\`).textContent = \`R$ \${revenue.toFixed(2).replace('.', ',')}\`;
+            document.querySelector(\`.item-cost-\${index}\`).textContent = \`R$ \${cost.toFixed(2).replace('.', ',')}\`;
             
             const profitClass = profit >= 0 ? 'text-green-600' : 'text-red-600';
-            const profitElement = document.querySelector('.item-profit-\' + (index));
-            profitElement.textContent = 'R$ \' + (profit.toFixed(2).replace('.', ','));
-            profitElement.className = 'px-3 py-3 text-right text-sm font-semibold \' + (profitClass);
+            const profitElement = document.querySelector(\`.item-profit-\${index}\`);
+            profitElement.textContent = \`R$ \${profit.toFixed(2).replace('.', ',')}\`;
+            profitElement.className = \`px-3 py-3 text-right text-sm font-semibold \${profitClass}\`;
             
             // Recalcular totais
             calculateFinalizeTotals();
@@ -1062,11 +1062,11 @@ export const feirasPage = `<!DOCTYPE html>
                 totalProfit += profit;
             });
             
-            document.getElementById('totalRevenue').textContent = 'R$ \' + (totalRevenue.toFixed(2).replace('.', ','));
-            document.getElementById('totalCost').textContent = 'R$ \' + (totalCost.toFixed(2).replace('.', ','));
+            document.getElementById('totalRevenue').textContent = \`R$ \${totalRevenue.toFixed(2).replace('.', ',')}\`;
+            document.getElementById('totalCost').textContent = \`R$ \${totalCost.toFixed(2).replace('.', ',')}\`;
             
             const profitElement = document.getElementById('totalProfit');
-            profitElement.textContent = 'R$ \' + (totalProfit.toFixed(2).replace('.', ','));
+            profitElement.textContent = \`R$ \${totalProfit.toFixed(2).replace('.', ',')}\`;
             profitElement.className = totalProfit >= 0 
                 ? 'text-2xl font-bold text-green-600' 
                 : 'text-2xl font-bold text-red-600';
@@ -1099,11 +1099,11 @@ export const feirasPage = `<!DOCTYPE html>
             });
             
             try {
-                const response = await fetch('/api/fairs/\' + (fairId) + '/finalize', {
+                const response = await fetch(\`/api/fairs/\${fairId}/finalize\`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer \' + (token)
+                        'Authorization': \`Bearer \${token}\`
                     },
                     body: JSON.stringify({ items })
                 });
@@ -1149,14 +1149,14 @@ export const feirasPage = `<!DOCTYPE html>
             const data = { date, location, observations, items };
             
             try {
-                const url = fairId ? '/api/fairs/\' + (fairId) : '/api/fairs';
+                const url = fairId ? \`/api/fairs/\${fairId}\` : '/api/fairs';
                 const method = fairId ? 'PUT' : 'POST';
                 
                 const response = await fetch(url, {
                     method,
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer \' + (token)
+                        'Authorization': \`Bearer \${token}\`
                     },
                     body: JSON.stringify(data)
                 });
@@ -1167,7 +1167,7 @@ export const feirasPage = `<!DOCTYPE html>
                     loadFairs();
                 } else {
                     const error = await response.json();
-                    showToast('Erro: \' + (error.error), 'error');
+                    showToast(\`Erro: \${error.error}\`, 'error');
                 }
             } catch (error) {
                 console.error('Erro:', error);

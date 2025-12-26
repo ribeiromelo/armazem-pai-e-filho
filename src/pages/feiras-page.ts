@@ -691,13 +691,25 @@ export const feirasPage = `<!DOCTYPE html>
                     }
                 });
                 
-                if (response.ok) {
-                    fairs = await response.json();
-                    renderFairs();
-                    loadStats();
+                if (!response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const error = await response.json();
+                        console.error('Erro na API:', error);
+                        showToast(error.error || 'Erro ao carregar feiras', 'error');
+                    } else {
+                        console.error('Resposta não-JSON:', await response.text());
+                        showToast('Erro ao carregar feiras', 'error');
+                    }
+                    return;
                 }
+                
+                fairs = await response.json();
+                renderFairs();
+                loadStats();
             } catch (error) {
                 console.error('Erro ao carregar feiras:', error);
+                showToast('Erro ao carregar feiras', 'error');
             }
         }
 
@@ -717,13 +729,21 @@ export const feirasPage = `<!DOCTYPE html>
                     }
                 });
                 
-                if (response.ok) {
-                    const stats = await response.json();
-                    
-                    document.getElementById('totalFairs').textContent = stats.total_fairs;
-                    document.getElementById('totalRevenue').textContent = \`R$ \${stats.total_revenue.toFixed(2).replace('.', ',')}\`;
-                    document.getElementById('avgRevenue').textContent = \`R$ \${stats.average_revenue.toFixed(2).replace('.', ',')}\`;
-                    document.getElementById('maxRevenue').textContent = \`R$ \${stats.max_revenue.toFixed(2).replace('.', ',')}\`;
+                if (!response.ok) {
+                    console.error('Erro ao carregar estatísticas');
+                    return;
+                }
+                
+                const stats = await response.json();
+                
+                document.getElementById('totalFairs').textContent = stats.total_fairs;
+                document.getElementById('totalRevenue').textContent = \`R$ \${stats.total_revenue.toFixed(2).replace('.', ',')}\`;
+                document.getElementById('avgRevenue').textContent = \`R$ \${stats.average_revenue.toFixed(2).replace('.', ',')}\`;
+                document.getElementById('maxRevenue').textContent = \`R$ \${stats.max_revenue.toFixed(2).replace('.', ',')}\`;
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
                 }
             } catch (error) {
                 console.error('Erro ao carregar estatísticas:', error);

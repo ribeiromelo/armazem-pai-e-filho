@@ -9,38 +9,10 @@ export const feirasPage = `<!DOCTYPE html>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-        }
-        
-        /* Sidebar Mobile Toggle */
-        #sidebar {
-            transition: transform 0.3s ease-in-out;
-        }
-        
-        @media (max-width: 768px) {
-            #sidebar {
-                position: fixed;
-                z-index: 40;
-                transform: translateX(-100%);
-            }
-            
-            #sidebar.active {
-                transform: translateX(0);
-            }
-            
-            #overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 30;
-            }
-            
-            #overlay.active {
-                display: block;
-            }
         }
         
         /* Modal Styles */
@@ -85,70 +57,12 @@ export const feirasPage = `<!DOCTYPE html>
         @media print {
             .no-print { display: none !important; }
         }
-        
-        /* Toast Notification Styles */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            min-width: 300px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 9999;
-            animation: slideInRight 0.3s ease-out;
-        }
-        
-        .toast.success {
-            border-left: 4px solid #10b981;
-        }
-        
-        .toast.error {
-            border-left: 4px solid #ef4444;
-        }
-        
-        .toast.warning {
-            border-left: 4px solid #f59e0b;
-        }
-        
-        @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-        
-        .toast.hiding {
-            animation: slideOutRight 0.3s ease-out;
-        }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Overlay para mobile -->
-    <div id="overlay" onclick="toggleSidebar()"></div>
-    
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-64 bg-blue-600 text-white md:relative md:translate-x-0">
+        <aside class="w-64 bg-blue-600 text-white">
             <div class="p-6">
                 <h1 class="text-2xl font-bold">Armazém P&F</h1>
                 <p class="text-blue-200 text-sm mt-1">Sistema de Gestão</p>
@@ -185,55 +99,53 @@ export const feirasPage = `<!DOCTYPE html>
                 </a>
             </nav>
             
-            <div class="absolute bottom-0 w-64 p-6">
-                <div class="border-t border-blue-500 pt-4">
-                    <div class="flex items-center justify-between">
+            <div class="absolute bottom-0 w-64 p-6 border-t border-blue-500">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium" id="userName">Usuário</p>
+                        <p class="text-xs text-blue-200" id="userRole">Carregando...</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="mt-4 w-full px-4 py-2 bg-blue-700 hover:bg-blue-800 rounded-lg text-sm transition-colors">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <div class="bg-white shadow-sm">
+                <div class="px-8 py-6">
+                    <div class="flex justify-between items-center">
                         <div>
-                            <p class="text-sm font-medium" id="userName">Usuário</p>
-                            <p class="text-xs text-blue-200" id="userRole">Função</p>
+                            <h2 class="text-2xl font-bold text-gray-800">
+                                <i class="fas fa-store mr-2 text-blue-600"></i>
+                                Gestão de Feiras
+                            </h2>
+                            <p class="text-gray-600 mt-1">Registre e controle suas vendas em feiras</p>
                         </div>
-                        <button onclick="logout()" class="text-blue-200 hover:text-white">
-                            <i class="fas fa-sign-out-alt"></i>
+                        <button 
+                            onclick="openModal()" 
+                            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                            id="btnAddFair"
+                        >
+                            <i class="fas fa-plus mr-2"></i>
+                            Nova Feira
                         </button>
                     </div>
                 </div>
             </div>
-        </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto w-full">
-            <!-- Header -->
-            <header class="bg-white shadow-sm border-b border-gray-200">
-                <div class="px-4 md:px-8 py-4 flex justify-between items-center">
-                    <div class="flex items-center flex-1">
-                        <!-- Botão Menu Mobile -->
-                        <button onclick="toggleSidebar()" class="md:hidden mr-3 text-gray-600 hover:text-gray-800">
-                            <i class="fas fa-bars text-xl"></i>
-                        </button>
-                        
-                        <div>
-                            <h2 class="text-xl md:text-2xl font-semibold text-gray-800">Feiras</h2>
-                            <p class="text-gray-600 text-xs md:text-sm mt-1 hidden sm:block">Registre e controle suas vendas em feiras</p>
-                        </div>
-                    </div>
-                    <button 
-                        onclick="openModal()" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 rounded-lg flex items-center text-sm md:text-base"
-                        id="btnAddFair"
-                    >
-                        <i class="fas fa-plus mr-1 md:mr-2"></i>
-                        <span class="hidden sm:inline">Nova</span>
-                        <span class="hidden md:inline"> Feira</span>
-                    </button>
-                </div>
-            </header>
-
-            <!-- Content -->
-            <div class="p-4 md:p-8">
+            <!-- Filtros e Cards de Estatísticas -->
+            <div class="px-8 py-6">
                 <!-- Filtros -->
-                <div class="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-4 md:mb-6">
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                     <h3 class="text-lg font-semibold mb-4">Filtros</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                    <div class="grid grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Mês</label>
                             <select id="monthFilter" onchange="loadFairs()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -267,8 +179,8 @@ export const feirasPage = `<!DOCTYPE html>
                 </div>
 
                 <!-- Cards de Estatísticas -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-4 md:mb-6">
-                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
+                <div class="grid grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow-sm p-6">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600 mb-1">Total de Feiras</p>
@@ -280,7 +192,7 @@ export const feirasPage = `<!DOCTYPE html>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
+                    <div class="bg-white rounded-lg shadow-sm p-6">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600 mb-1">Faturamento Total</p>
@@ -292,7 +204,7 @@ export const feirasPage = `<!DOCTYPE html>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
+                    <div class="bg-white rounded-lg shadow-sm p-6">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600 mb-1">Média por Feira</p>
@@ -304,7 +216,7 @@ export const feirasPage = `<!DOCTYPE html>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
+                    <div class="bg-white rounded-lg shadow-sm p-6">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600 mb-1">Melhor Feira</p>
@@ -319,8 +231,7 @@ export const feirasPage = `<!DOCTYPE html>
 
                 <!-- Tabela de Feiras -->
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -328,9 +239,6 @@ export const feirasPage = `<!DOCTYPE html>
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Local
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Itens
@@ -348,26 +256,25 @@ export const feirasPage = `<!DOCTYPE html>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="fairsTable">
                             <tr>
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                     Carregando...
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    </div>
                 </div>
             </div>
         </main>
     </div>
 
     <!-- Modal Adicionar/Editar -->
-    <div id="fairModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg p-4 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div id="fairModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <h3 class="text-xl font-semibold mb-4" id="modalTitle">Nova Feira</h3>
             <form id="fairForm">
                 <input type="hidden" id="fairId">
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                <div class="grid grid-cols-2 gap-4">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Data da Feira *</label>
                         <input type="date" id="fairDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -431,70 +338,15 @@ export const feirasPage = `<!DOCTYPE html>
                 <!-- Conteúdo será inserido dinamicamente -->
             </div>
             
-            <div class="flex justify-end mt-6">
-                <button onclick="closeViewModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <div class="flex justify-end space-x-3 mt-6 no-print">
+                <button onclick="printFair()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
+                    <i class="fas fa-print mr-2"></i>
+                    Imprimir
+                </button>
+                <button onclick="closeViewModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
                     Fechar
                 </button>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal de Finalização -->
-    <div id="finalizeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg p-4 md:p-8 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-semibold mb-4">Finalizar Feira</h3>
-            <p class="text-sm text-gray-600 mb-6">Informe a quantidade que voltou e o preço de compra de cada item para calcular o lucro.</p>
-            
-            <form id="finalizeForm">
-                <input type="hidden" id="finalizeFairId">
-                
-                <!-- Cabeçalho da tabela -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Qtd Levada</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Preço Venda</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Qtd Voltou</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Qtd Vendida</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Preço Compra</th>
-                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Faturamento</th>
-                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Custo</th>
-                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Lucro</th>
-                            </tr>
-                        </thead>
-                        <tbody id="finalizeItemsContainer" class="bg-white divide-y divide-gray-200">
-                            <!-- Itens serão adicionados aqui -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- Totais -->
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="p-4 bg-blue-50 rounded-lg">
-                        <div class="text-sm text-gray-600 mb-1">Faturamento Total</div>
-                        <div class="text-2xl font-bold text-blue-600" id="totalRevenue">R$ 0,00</div>
-                    </div>
-                    <div class="p-4 bg-orange-50 rounded-lg">
-                        <div class="text-sm text-gray-600 mb-1">Custo Total</div>
-                        <div class="text-2xl font-bold text-orange-600" id="totalCost">R$ 0,00</div>
-                    </div>
-                    <div class="p-4 bg-green-50 rounded-lg">
-                        <div class="text-sm text-gray-600 mb-1">Lucro Total</div>
-                        <div class="text-2xl font-bold text-green-600" id="totalProfit">R$ 0,00</div>
-                    </div>
-                </div>
-                
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" onclick="closeFinalizeModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                        <i class="fas fa-check mr-2"></i>Finalizar Feira
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -527,38 +379,6 @@ export const feirasPage = `<!DOCTYPE html>
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/';
-        }
-
-        // Função para mostrar notificações toast
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = \`toast \${type}\`;
-            
-            const icon = type === 'success' ? 'fa-check-circle' : 
-                        type === 'error' ? 'fa-exclamation-circle' : 
-                        'fa-exclamation-triangle';
-            
-            const color = type === 'success' ? 'text-green-600' : 
-                         type === 'error' ? 'text-red-600' : 
-                         'text-yellow-600';
-            
-            toast.innerHTML = \`
-                <i class="fas \${icon} \${color} text-xl"></i>
-                <div class="flex-1">
-                    <p class="font-medium text-gray-800">\${message}</p>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times"></i>
-                </button>
-            \`;
-            
-            document.body.appendChild(toast);
-            
-            // Remover automaticamente após 3 segundos
-            setTimeout(() => {
-                toast.classList.add('hiding');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
         }
 
         let fairs = [];
@@ -751,37 +571,19 @@ export const feirasPage = `<!DOCTYPE html>
                         <div class="text-sm font-medium text-gray-900">\${fair.location}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full \${
-                            fair.status === 'finalized' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }">
-                            \${fair.status === 'finalized' ? 'Finalizada' : 'Em aberto'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900">\${fair.items_count} itens</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-semibold text-green-600">R$ \${fair.total_value.toFixed(2).replace('.', ',')}</div>
-                        \${fair.status === 'finalized' && fair.total_profit !== null ? \`
-                            <div class="text-xs text-gray-500">Lucro: R$ \${fair.total_profit.toFixed(2).replace('.', ',')}</div>
-                        \` : ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900">\${fair.created_by_name}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="viewFair(\${fair.id})" class="text-blue-600 hover:text-blue-900 mr-2" title="Visualizar">
+                        <button onclick="viewFair(\${fair.id})" class="text-blue-600 hover:text-blue-900 mr-2">
                             <i class="fas fa-eye"></i>
                         </button>
-                        \${fair.status === 'open' && user.permission !== 'view' ? \`
-                            <button onclick="finalizeFair(\${fair.id})" class="text-green-600 hover:text-green-900 mr-2" title="Finalizar feira">
-                                <i class="fas fa-check-circle"></i>
-                            </button>
-                            <button onclick="editFair(\${fair.id})" class="text-yellow-600 hover:text-yellow-900 mr-2" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        \` : ''}
-                        \${user.permission !== 'view' && fair.status === 'open' ? '' : ''}
+                        \${user.permission !== 'view' ? \`
                             <button onclick="editFair(\${fair.id})" class="text-yellow-600 hover:text-yellow-900 mr-2">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -798,7 +600,7 @@ export const feirasPage = `<!DOCTYPE html>
             
             document.getElementById('fairsTable').innerHTML = html || \`
                 <tr>
-                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                         Nenhuma feira encontrada
                     </td>
                 </tr>
@@ -894,6 +696,31 @@ export const feirasPage = `<!DOCTYPE html>
             document.getElementById('viewModal').classList.remove('active');
         }
 
+        function printFair() {
+            const element = document.getElementById('fairToPrint');
+            
+            html2canvas(element, {
+                scale: 2,
+                logging: false,
+                useCORS: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const windowContent = '<!DOCTYPE html>' +
+                    '<html>' +
+                    '<head><title>Imprimir Feira</title></head>' +
+                    '<body style="margin: 0; padding: 20px;">' +
+                    '<img src="' + imgData + '" style="width: 100%; max-width: 800px; display: block; margin: 0 auto;">' +
+                    '<script>window.onload = function() { window.print(); window.close(); }</' + 'script>' +
+                    '</body>' +
+                    '</html>';
+                
+                const printWindow = window.open('', '', 'width=900,height=650');
+                printWindow.document.open();
+                printWindow.document.write(windowContent);
+                printWindow.document.close();
+            });
+        }
+
         // Editar feira
         function editFair(id) {
             fetch(\`/api/fairs/\${id}\`, {
@@ -937,190 +764,16 @@ export const feirasPage = `<!DOCTYPE html>
                 });
                 
                 if (response.ok) {
-                    showToast('Feira deletada com sucesso!', 'success');
+                    alert('Feira deletada com sucesso!');
                     loadFairs();
                 } else {
-                    showToast('Erro ao deletar feira', 'error');
+                    alert('Erro ao deletar feira');
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                showToast('Erro ao deletar feira', 'error');
+                alert('Erro ao deletar feira');
             }
         }
-
-        // Finalizar feira
-        window.finalizeFair = async function(id) {
-            try {
-                // Buscar detalhes da feira
-                const response = await fetch(\`/api/fairs/\${id}\`, {
-                    headers: { 'Authorization': \`Bearer \${token}\` }
-                });
-                
-                if (!response.ok) {
-                    showToast('Erro ao carregar feira', 'error');
-                    return;
-                }
-                
-                const fair = await response.json();
-                
-                // Preencher modal de finalização
-                document.getElementById('finalizeFairId').value = id;
-                
-                const container = document.getElementById('finalizeItemsContainer');
-                container.innerHTML = fair.items.map((item, index) => \`
-                    <tr data-item-id="\${item.id}" data-index="\${index}">
-                        <td class="px-3 py-3 text-sm text-gray-900">\${item.category}</td>
-                        <td class="px-3 py-3 text-center text-sm font-medium">\${item.quantity}</td>
-                        <td class="px-3 py-3 text-center text-sm">R$ \${item.unit_value.toFixed(2).replace('.', ',')}</td>
-                        <td class="px-3 py-3">
-                            <input type="number" 
-                                   class="quantity-returned w-20 px-2 py-1 border border-gray-300 rounded text-center" 
-                                   min="0" 
-                                   max="\${item.quantity}" 
-                                   value="0"
-                                   data-index="\${index}"
-                                   onchange="calculateFinalizeRow(\${index})">
-                        </td>
-                        <td class="px-3 py-3 text-center text-sm font-semibold quantity-sold-\${index}">-</td>
-                        <td class="px-3 py-3">
-                            <input type="number" 
-                                   step="0.01" 
-                                   class="unit-cost w-24 px-2 py-1 border border-gray-300 rounded text-center" 
-                                   min="0" 
-                                   value="0"
-                                   data-index="\${index}"
-                                   onchange="calculateFinalizeRow(\${index})">
-                        </td>
-                        <td class="px-3 py-3 text-right text-sm font-semibold text-blue-600 item-revenue-\${index}">-</td>
-                        <td class="px-3 py-3 text-right text-sm font-semibold text-orange-600 item-cost-\${index}">-</td>
-                        <td class="px-3 py-3 text-right text-sm font-semibold text-green-600 item-profit-\${index}">-</td>
-                    </tr>
-                \`).join('');
-                
-                // Abrir modal
-                document.getElementById('finalizeModal').classList.remove('hidden');
-                
-            } catch (error) {
-                console.error('Erro:', error);
-                showToast('Erro ao abrir modal de finalização', 'error');
-            }
-        }
-
-        // Calcular valores de uma linha
-        window.calculateFinalizeRow = function(index) {
-            const row = document.querySelector(\`[data-index="\${index}"]\`).closest('tr');
-            const quantityTaken = parseInt(row.cells[1].textContent);
-            const salePrice = parseFloat(row.cells[2].textContent.replace('R$ ', '').replace(',', '.'));
-            
-            const quantityReturned = parseInt(row.querySelector('.quantity-returned').value) || 0;
-            const unitCost = parseFloat(row.querySelector('.unit-cost').value) || 0;
-            
-            // Validar quantidade retornada
-            if (quantityReturned > quantityTaken) {
-                row.querySelector('.quantity-returned').value = quantityTaken;
-                return calculateFinalizeRow(index);
-            }
-            
-            const quantitySold = quantityTaken - quantityReturned;
-            const revenue = quantitySold * salePrice;
-            const cost = quantitySold * unitCost;
-            const profit = revenue - cost;
-            
-            // Atualizar valores na linha
-            document.querySelector(\`.quantity-sold-\${index}\`).textContent = quantitySold;
-            document.querySelector(\`.item-revenue-\${index}\`).textContent = \`R$ \${revenue.toFixed(2).replace('.', ',')}\`;
-            document.querySelector(\`.item-cost-\${index}\`).textContent = \`R$ \${cost.toFixed(2).replace('.', ',')}\`;
-            
-            const profitClass = profit >= 0 ? 'text-green-600' : 'text-red-600';
-            const profitElement = document.querySelector(\`.item-profit-\${index}\`);
-            profitElement.textContent = \`R$ \${profit.toFixed(2).replace('.', ',')}\`;
-            profitElement.className = \`px-3 py-3 text-right text-sm font-semibold \${profitClass}\`;
-            
-            // Recalcular totais
-            calculateFinalizeTotals();
-        }
-
-        // Calcular totais da finalização
-        window.calculateFinalizeTotals = function() {
-            let totalRevenue = 0;
-            let totalCost = 0;
-            let totalProfit = 0;
-            
-            document.querySelectorAll('#finalizeItemsContainer tr').forEach((row, index) => {
-                const quantityTaken = parseInt(row.cells[1].textContent);
-                const salePrice = parseFloat(row.cells[2].textContent.replace('R$ ', '').replace(',', '.'));
-                const quantityReturned = parseInt(row.querySelector('.quantity-returned').value) || 0;
-                const unitCost = parseFloat(row.querySelector('.unit-cost').value) || 0;
-                
-                const quantitySold = quantityTaken - quantityReturned;
-                const revenue = quantitySold * salePrice;
-                const cost = quantitySold * unitCost;
-                const profit = revenue - cost;
-                
-                totalRevenue += revenue;
-                totalCost += cost;
-                totalProfit += profit;
-            });
-            
-            document.getElementById('totalRevenue').textContent = \`R$ \${totalRevenue.toFixed(2).replace('.', ',')}\`;
-            document.getElementById('totalCost').textContent = \`R$ \${totalCost.toFixed(2).replace('.', ',')}\`;
-            
-            const profitElement = document.getElementById('totalProfit');
-            profitElement.textContent = \`R$ \${totalProfit.toFixed(2).replace('.', ',')}\`;
-            profitElement.className = totalProfit >= 0 
-                ? 'text-2xl font-bold text-green-600' 
-                : 'text-2xl font-bold text-red-600';
-        }
-
-        // Fechar modal de finalização
-        window.closeFinalizeModal = function() {
-            document.getElementById('finalizeModal').classList.add('hidden');
-            document.getElementById('finalizeForm').reset();
-        }
-
-        // Submeter finalização
-        document.getElementById('finalizeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const fairId = document.getElementById('finalizeFairId').value;
-            
-            // Coletar dados dos itens
-            const items = [];
-            document.querySelectorAll('#finalizeItemsContainer tr').forEach(row => {
-                const itemId = row.dataset.itemId;
-                const quantityReturned = parseInt(row.querySelector('.quantity-returned').value) || 0;
-                const unitCost = parseFloat(row.querySelector('.unit-cost').value) || 0;
-                
-                items.push({
-                    item_id: itemId,
-                    quantity_returned: quantityReturned,
-                    unit_cost: unitCost
-                });
-            });
-            
-            try {
-                const response = await fetch(\`/api/fairs/\${fairId}/finalize\`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': \`Bearer \${token}\`
-                    },
-                    body: JSON.stringify({ items })
-                });
-                
-                if (response.ok) {
-                    showToast('Feira finalizada com sucesso!', 'success');
-                    closeFinalizeModal();
-                    loadFairs();
-                } else {
-                    const data = await response.json();
-                    showToast(data.error || 'Erro ao finalizar feira', 'error');
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                showToast('Erro ao finalizar feira', 'error');
-            }
-        });
 
         // Submeter formulário
         document.getElementById('fairForm').addEventListener('submit', async (e) => {
@@ -1142,7 +795,7 @@ export const feirasPage = `<!DOCTYPE html>
             });
             
             if (items.length === 0) {
-                showToast('Adicione pelo menos um item à feira', 'warning');
+                alert('Adicione pelo menos um item à feira');
                 return;
             }
             
@@ -1162,26 +815,18 @@ export const feirasPage = `<!DOCTYPE html>
                 });
                 
                 if (response.ok) {
-                    showToast(fairId ? 'Feira atualizada com sucesso!' : 'Feira criada com sucesso!', 'success');
+                    alert(fairId ? 'Feira atualizada com sucesso!' : 'Feira criada com sucesso!');
                     closeModal();
                     loadFairs();
                 } else {
                     const error = await response.json();
-                    showToast(\`Erro: \${error.error}\`, 'error');
+                    alert(\`Erro: \${error.error}\`);
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                showToast('Erro ao salvar feira', 'error');
+                alert('Erro ao salvar feira');
             }
         });
-
-        // Toggle sidebar mobile
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
 
         // Inicializar
         initializeYearFilter();

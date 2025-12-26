@@ -499,9 +499,15 @@ export const feirasPage = `<!DOCTYPE html>
     </div>
 
     <script>
+        console.log('=== SCRIPT INICIADO ===');
+        console.log('LocalStorage disponível:', typeof localStorage);
+        
         // Verificar autenticação
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        console.log('Token recuperado:', token ? 'SIM' : 'NÃO');
+        console.log('Usuário:', user);
         
         if (!token) {
             window.location.href = '/';

@@ -678,6 +678,9 @@ export const feirasPage = `<!DOCTYPE html>
         // Carregar feiras
         window.loadFairs = async function() {
             try {
+                console.log('[DEBUG] Carregando feiras...');
+                console.log('[DEBUG] Token disponível:', token ? 'Sim' : 'Não');
+                
                 const month = document.getElementById('monthFilter').value;
                 const year = document.getElementById('yearFilter').value;
                 
@@ -685,11 +688,16 @@ export const feirasPage = `<!DOCTYPE html>
                 if (month) url += \`month=\${month}&\`;
                 if (year) url += \`year=\${year}&\`;
                 
+                console.log('[DEBUG] URL da requisição:', url);
+                
                 const response = await fetch(url, {
                     headers: {
                         'Authorization': \`Bearer \${token}\`
                     }
                 });
+                
+                console.log('[DEBUG] Status da resposta:', response.status);
+                console.log('[DEBUG] Content-Type:', response.headers.get('content-type'));
                 
                 if (!response.ok) {
                     const contentType = response.headers.get('content-type');
@@ -698,13 +706,15 @@ export const feirasPage = `<!DOCTYPE html>
                         console.error('Erro na API:', error);
                         showToast(error.error || 'Erro ao carregar feiras', 'error');
                     } else {
-                        console.error('Resposta não-JSON:', await response.text());
+                        const text = await response.text();
+                        console.error('Resposta não-JSON:', text.substring(0, 200));
                         showToast('Erro ao carregar feiras', 'error');
                     }
                     return;
                 }
                 
                 fairs = await response.json();
+                console.log('[DEBUG] Feiras carregadas:', fairs.length);
                 renderFairs();
                 loadStats();
             } catch (error) {

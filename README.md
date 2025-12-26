@@ -6,7 +6,7 @@
 - **Funcionalidades Principais**: Gestão de fornecedores, fichas semanais, feiras, recibos, controle financeiro e usuários
 
 ## URLs de Acesso
-- **Produção (Cloudflare Pages)**: https://2105dfad.armazem-pai-filho.pages.dev
+- **Produção (Cloudflare Pages)**: https://87ace56b.armazem-pai-filho.pages.dev
 - **GitHub**: https://github.com/ribeiromelo/armazem-pai-e-filho
 - **Backup do Projeto**: https://www.genspark.ai/api/files/s/ojaFBq3o
 

@@ -242,6 +242,103 @@ fairs.delete('/:id', async (c) => {
   }
 })
 
+// Finalizar feira
+fairs.put('/:id/finalize', async (c) => {
+  const { env } = c
+  const user = c.get('user') as any
+  const id = c.req.param('id')
+  
+  try {
+    const data = await c.req.json()
+    const { items } = data // items: [{item_id, quantity_returned, unit_cost}, ...]
+    
+    if (!items || items.length === 0) {
+      return c.json({ error: 'Itens são obrigatórios' }, 400)
+    }
+    
+    // Buscar feira e verificar se está em aberto
+    const fair = await env.DB.prepare(
+      'SELECT * FROM fairs WHERE id = ?'
+    ).bind(id).first()
+    
+    if (!fair) {
+      return c.json({ error: 'Feira não encontrada' }, 404)
+    }
+    
+    if (fair.status === 'finalized') {
+      return c.json({ error: 'Feira já está finalizada' }, 400)
+    }
+    
+    let totalRevenue = 0
+    let totalCost = 0
+    let totalProfit = 0
+    
+    // Processar cada item
+    for (const item of items) {
+      // Buscar item original
+      const originalItem = await env.DB.prepare(
+        'SELECT * FROM fair_items WHERE id = ?'
+      ).bind(item.item_id).first()
+      
+      if (!originalItem) continue
+      
+      const quantityReturned = parseInt(item.quantity_returned) || 0
+      const quantitySold = originalItem.quantity - quantityReturned
+      const unitCost = parseFloat(item.unit_cost) || 0
+      
+      // Cálculos
+      const itemRevenue = quantitySold * originalItem.unit_value
+      const itemCost = quantitySold * unitCost
+      const itemProfit = itemRevenue - itemCost
+      
+      totalRevenue += itemRevenue
+      totalCost += itemCost
+      totalProfit += itemProfit
+      
+      // Atualizar item com dados de venda
+      await env.DB.prepare(`
+        UPDATE fair_items 
+        SET quantity_returned = ?,
+            quantity_sold = ?,
+            unit_cost = ?,
+            total_revenue = ?,
+            total_cost = ?,
+            profit = ?
+        WHERE id = ?
+      `).bind(
+        quantityReturned,
+        quantitySold,
+        unitCost,
+        itemRevenue,
+        itemCost,
+        itemProfit,
+        item.item_id
+      ).run()
+    }
+    
+    // Atualizar feira
+    await env.DB.prepare(`
+      UPDATE fairs 
+      SET status = 'finalized',
+          total_revenue = ?,
+          total_cost = ?,
+          total_profit = ?,
+          finalized_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(totalRevenue, totalCost, totalProfit, id).run()
+    
+    return c.json({
+      message: 'Feira finalizada com sucesso',
+      total_revenue: totalRevenue,
+      total_cost: totalCost,
+      total_profit: totalProfit
+    })
+  } catch (error: any) {
+    console.error("Erro:", error);
+    return c.json({ error: "Erro interno do servidor" }, 500)
+  }
+})
+
 // Estatísticas de feiras
 fairs.get('/stats/summary', async (c) => {
   const { env } = c

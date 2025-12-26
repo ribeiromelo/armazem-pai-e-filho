@@ -330,9 +330,6 @@ export const feirasPage = `<!DOCTYPE html>
                                     Local
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Itens
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -348,7 +345,7 @@ export const feirasPage = `<!DOCTYPE html>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="fairsTable">
                             <tr>
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                     Carregando...
                                 </td>
                             </tr>
@@ -436,65 +433,6 @@ export const feirasPage = `<!DOCTYPE html>
                     Fechar
                 </button>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal de Finalização -->
-    <div id="finalizeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg p-4 md:p-8 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-semibold mb-4">Finalizar Feira</h3>
-            <p class="text-sm text-gray-600 mb-6">Informe a quantidade que voltou e o preço de compra de cada item para calcular o lucro.</p>
-            
-            <form id="finalizeForm">
-                <input type="hidden" id="finalizeFairId">
-                
-                <!-- Cabeçalho da tabela -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Qtd Levada</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Preço Venda</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Qtd Voltou</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Qtd Vendida</th>
-                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Preço Compra</th>
-                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Faturamento</th>
-                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Custo</th>
-                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Lucro</th>
-                            </tr>
-                        </thead>
-                        <tbody id="finalizeItemsContainer" class="bg-white divide-y divide-gray-200">
-                            <!-- Itens serão adicionados aqui -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- Totais -->
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="p-4 bg-blue-50 rounded-lg">
-                        <div class="text-sm text-gray-600 mb-1">Faturamento Total</div>
-                        <div class="text-2xl font-bold text-blue-600" id="totalRevenue">R$ 0,00</div>
-                    </div>
-                    <div class="p-4 bg-orange-50 rounded-lg">
-                        <div class="text-sm text-gray-600 mb-1">Custo Total</div>
-                        <div class="text-2xl font-bold text-orange-600" id="totalCost">R$ 0,00</div>
-                    </div>
-                    <div class="p-4 bg-green-50 rounded-lg">
-                        <div class="text-sm text-gray-600 mb-1">Lucro Total</div>
-                        <div class="text-2xl font-bold text-green-600" id="totalProfit">R$ 0,00</div>
-                    </div>
-                </div>
-                
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" onclick="closeFinalizeModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                        <i class="fas fa-check mr-2"></i>Finalizar Feira
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -751,37 +689,19 @@ export const feirasPage = `<!DOCTYPE html>
                         <div class="text-sm font-medium text-gray-900">\${fair.location}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full \${
-                            fair.status === 'finalized' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }">
-                            \${fair.status === 'finalized' ? 'Finalizada' : 'Em aberto'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900">\${fair.items_count} itens</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-semibold text-green-600">R$ \${fair.total_value.toFixed(2).replace('.', ',')}</div>
-                        \${fair.status === 'finalized' && fair.total_profit !== null ? \`
-                            <div class="text-xs text-gray-500">Lucro: R$ \${fair.total_profit.toFixed(2).replace('.', ',')}</div>
-                        \` : ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900">\${fair.created_by_name}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="viewFair(\${fair.id})" class="text-blue-600 hover:text-blue-900 mr-2" title="Visualizar">
+                        <button onclick="viewFair(\${fair.id})" class="text-blue-600 hover:text-blue-900 mr-2">
                             <i class="fas fa-eye"></i>
                         </button>
-                        \${fair.status === 'open' && user.permission !== 'view' ? \`
-                            <button onclick="finalizeFair(\${fair.id})" class="text-green-600 hover:text-green-900 mr-2" title="Finalizar feira">
-                                <i class="fas fa-check-circle"></i>
-                            </button>
-                            <button onclick="editFair(\${fair.id})" class="text-yellow-600 hover:text-yellow-900 mr-2" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        \` : ''}
-                        \${user.permission !== 'view' && fair.status === 'open' ? '' : ''}
+                        \${user.permission !== 'view' ? \`
                             <button onclick="editFair(\${fair.id})" class="text-yellow-600 hover:text-yellow-900 mr-2">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -798,7 +718,7 @@ export const feirasPage = `<!DOCTYPE html>
             
             document.getElementById('fairsTable').innerHTML = html || \`
                 <tr>
-                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                         Nenhuma feira encontrada
                     </td>
                 </tr>
@@ -947,180 +867,6 @@ export const feirasPage = `<!DOCTYPE html>
                 showToast('Erro ao deletar feira', 'error');
             }
         }
-
-        // Finalizar feira
-        window.finalizeFair = async function(id) {
-            try {
-                // Buscar detalhes da feira
-                const response = await fetch(\`/api/fairs/\${id}\`, {
-                    headers: { 'Authorization': \`Bearer \${token}\` }
-                });
-                
-                if (!response.ok) {
-                    showToast('Erro ao carregar feira', 'error');
-                    return;
-                }
-                
-                const fair = await response.json();
-                
-                // Preencher modal de finalização
-                document.getElementById('finalizeFairId').value = id;
-                
-                const container = document.getElementById('finalizeItemsContainer');
-                container.innerHTML = fair.items.map((item, index) => \`
-                    <tr data-item-id="\${item.id}" data-index="\${index}">
-                        <td class="px-3 py-3 text-sm text-gray-900">\${item.category}</td>
-                        <td class="px-3 py-3 text-center text-sm font-medium">\${item.quantity}</td>
-                        <td class="px-3 py-3 text-center text-sm">R$ \${item.unit_value.toFixed(2).replace('.', ',')}</td>
-                        <td class="px-3 py-3">
-                            <input type="number" 
-                                   class="quantity-returned w-20 px-2 py-1 border border-gray-300 rounded text-center" 
-                                   min="0" 
-                                   max="\${item.quantity}" 
-                                   value="0"
-                                   data-index="\${index}"
-                                   onchange="calculateFinalizeRow(\${index})">
-                        </td>
-                        <td class="px-3 py-3 text-center text-sm font-semibold quantity-sold-\${index}">-</td>
-                        <td class="px-3 py-3">
-                            <input type="number" 
-                                   step="0.01" 
-                                   class="unit-cost w-24 px-2 py-1 border border-gray-300 rounded text-center" 
-                                   min="0" 
-                                   value="0"
-                                   data-index="\${index}"
-                                   onchange="calculateFinalizeRow(\${index})">
-                        </td>
-                        <td class="px-3 py-3 text-right text-sm font-semibold text-blue-600 item-revenue-\${index}">-</td>
-                        <td class="px-3 py-3 text-right text-sm font-semibold text-orange-600 item-cost-\${index}">-</td>
-                        <td class="px-3 py-3 text-right text-sm font-semibold text-green-600 item-profit-\${index}">-</td>
-                    </tr>
-                \`).join('');
-                
-                // Abrir modal
-                document.getElementById('finalizeModal').classList.remove('hidden');
-                
-            } catch (error) {
-                console.error('Erro:', error);
-                showToast('Erro ao abrir modal de finalização', 'error');
-            }
-        }
-
-        // Calcular valores de uma linha
-        window.calculateFinalizeRow = function(index) {
-            const row = document.querySelector(\`[data-index="\${index}"]\`).closest('tr');
-            const quantityTaken = parseInt(row.cells[1].textContent);
-            const salePrice = parseFloat(row.cells[2].textContent.replace('R$ ', '').replace(',', '.'));
-            
-            const quantityReturned = parseInt(row.querySelector('.quantity-returned').value) || 0;
-            const unitCost = parseFloat(row.querySelector('.unit-cost').value) || 0;
-            
-            // Validar quantidade retornada
-            if (quantityReturned > quantityTaken) {
-                row.querySelector('.quantity-returned').value = quantityTaken;
-                return calculateFinalizeRow(index);
-            }
-            
-            const quantitySold = quantityTaken - quantityReturned;
-            const revenue = quantitySold * salePrice;
-            const cost = quantitySold * unitCost;
-            const profit = revenue - cost;
-            
-            // Atualizar valores na linha
-            document.querySelector(\`.quantity-sold-\${index}\`).textContent = quantitySold;
-            document.querySelector(\`.item-revenue-\${index}\`).textContent = \`R$ \${revenue.toFixed(2).replace('.', ',')}\`;
-            document.querySelector(\`.item-cost-\${index}\`).textContent = \`R$ \${cost.toFixed(2).replace('.', ',')}\`;
-            
-            const profitClass = profit >= 0 ? 'text-green-600' : 'text-red-600';
-            const profitElement = document.querySelector(\`.item-profit-\${index}\`);
-            profitElement.textContent = \`R$ \${profit.toFixed(2).replace('.', ',')}\`;
-            profitElement.className = \`px-3 py-3 text-right text-sm font-semibold \${profitClass}\`;
-            
-            // Recalcular totais
-            calculateFinalizeTotals();
-        }
-
-        // Calcular totais da finalização
-        window.calculateFinalizeTotals = function() {
-            let totalRevenue = 0;
-            let totalCost = 0;
-            let totalProfit = 0;
-            
-            document.querySelectorAll('#finalizeItemsContainer tr').forEach((row, index) => {
-                const quantityTaken = parseInt(row.cells[1].textContent);
-                const salePrice = parseFloat(row.cells[2].textContent.replace('R$ ', '').replace(',', '.'));
-                const quantityReturned = parseInt(row.querySelector('.quantity-returned').value) || 0;
-                const unitCost = parseFloat(row.querySelector('.unit-cost').value) || 0;
-                
-                const quantitySold = quantityTaken - quantityReturned;
-                const revenue = quantitySold * salePrice;
-                const cost = quantitySold * unitCost;
-                const profit = revenue - cost;
-                
-                totalRevenue += revenue;
-                totalCost += cost;
-                totalProfit += profit;
-            });
-            
-            document.getElementById('totalRevenue').textContent = \`R$ \${totalRevenue.toFixed(2).replace('.', ',')}\`;
-            document.getElementById('totalCost').textContent = \`R$ \${totalCost.toFixed(2).replace('.', ',')}\`;
-            
-            const profitElement = document.getElementById('totalProfit');
-            profitElement.textContent = \`R$ \${totalProfit.toFixed(2).replace('.', ',')}\`;
-            profitElement.className = totalProfit >= 0 
-                ? 'text-2xl font-bold text-green-600' 
-                : 'text-2xl font-bold text-red-600';
-        }
-
-        // Fechar modal de finalização
-        window.closeFinalizeModal = function() {
-            document.getElementById('finalizeModal').classList.add('hidden');
-            document.getElementById('finalizeForm').reset();
-        }
-
-        // Submeter finalização
-        document.getElementById('finalizeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const fairId = document.getElementById('finalizeFairId').value;
-            
-            // Coletar dados dos itens
-            const items = [];
-            document.querySelectorAll('#finalizeItemsContainer tr').forEach(row => {
-                const itemId = row.dataset.itemId;
-                const quantityReturned = parseInt(row.querySelector('.quantity-returned').value) || 0;
-                const unitCost = parseFloat(row.querySelector('.unit-cost').value) || 0;
-                
-                items.push({
-                    item_id: itemId,
-                    quantity_returned: quantityReturned,
-                    unit_cost: unitCost
-                });
-            });
-            
-            try {
-                const response = await fetch(\`/api/fairs/\${fairId}/finalize\`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': \`Bearer \${token}\`
-                    },
-                    body: JSON.stringify({ items })
-                });
-                
-                if (response.ok) {
-                    showToast('Feira finalizada com sucesso!', 'success');
-                    closeFinalizeModal();
-                    loadFairs();
-                } else {
-                    const data = await response.json();
-                    showToast(data.error || 'Erro ao finalizar feira', 'error');
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                showToast('Erro ao finalizar feira', 'error');
-            }
-        });
 
         // Submeter formulário
         document.getElementById('fairForm').addEventListener('submit', async (e) => {

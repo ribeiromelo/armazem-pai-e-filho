@@ -6,7 +6,7 @@
 - **Funcionalidades Principais**: Gestão de fornecedores, fichas semanais, feiras, recibos, controle financeiro e usuários
 
 ## URLs de Acesso
-- **Produção (Cloudflare Pages)**: https://c3a42197.armazem-pai-filho.pages.dev
+- **Produção (Cloudflare Pages)**: https://2105dfad.armazem-pai-filho.pages.dev
 - **GitHub**: https://github.com/ribeiromelo/armazem-pai-e-filho
 - **Backup do Projeto**: https://www.genspark.ai/api/files/s/ojaFBq3o
 
@@ -59,8 +59,18 @@ Após o deploy, use a rota `/api/auth/emergency-reset-admin` (POST) para configu
    - Preview em tempo real dos valores
    - Marcação de conferência dupla
 
-5. **Módulo de Feiras** ✅
+5. **Módulo de Feiras** ✅⭐ ATUALIZADO
    - CRUD completo de feiras
+   - **Sistema de finalização com cálculo automático de lucros**:
+     - Status: "Em aberto" → "Finalizada"
+     - Campos para quantidade que voltou e preço de compra
+     - **Cálculos automáticos em tempo real**:
+       - Quantidade vendida = levada - voltou
+       - Faturamento = vendida × preço venda
+       - Custo = vendida × preço compra
+       - Lucro = faturamento - custo
+     - Modal profissional com tabela interativa
+     - Totalizadores de faturamento, custo e lucro
    - **Adicionar múltiplos itens** (quantidade × valor unitário)
    - **Cálculo automático do valor total da feira**
    - Filtros por mês e ano
